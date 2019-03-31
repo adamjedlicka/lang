@@ -24,6 +24,8 @@ var keywords = map[string]TokenType{
 }
 
 type Scanner struct {
+	l *Lang
+
 	source string
 	tokens []Token
 
@@ -32,8 +34,10 @@ type Scanner struct {
 	line    int
 }
 
-func MakeScanner(source string) *Scanner {
+func MakeScanner(l *Lang, source string) *Scanner {
 	s := new(Scanner)
+	s.l = l
+
 	s.source = source
 	s.tokens = make([]Token, 0)
 
@@ -121,7 +125,7 @@ func (s *Scanner) scanToken() {
 		} else if s.isAlpha(c) {
 			s.identifier()
 		} else {
-			panic("Unexpected character")
+			s.l.error(s.line, "Unexpected character.")
 		}
 	}
 }
@@ -177,7 +181,7 @@ func (s *Scanner) string() {
 	}
 
 	if s.isAtEnd() {
-		panic("Unterminated string.")
+		s.l.error(s.line, "Unterminated string.")
 	}
 
 	s.advance()

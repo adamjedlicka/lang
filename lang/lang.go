@@ -49,7 +49,7 @@ func (l *Lang) RunPrompt() {
 }
 
 func (l *Lang) run(source string) {
-	scanner := MakeScanner(source)
+	scanner := MakeScanner(l, source)
 	tokens := scanner.ScanTokens()
 
 	for _, token := range tokens {
@@ -62,6 +62,6 @@ func (l *Lang) error(line int, message string) {
 }
 
 func (l *Lang) report(line int, where, message string) {
-	fmt.Printf("[line %d] Error%s: %s", line, where, message)
+	fmt.Printf("[line %d] Error%s: %s\n", line, where, message)
 	l.hadError = true
 }
