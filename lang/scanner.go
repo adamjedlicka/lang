@@ -1,6 +1,7 @@
 package lang
 
 import (
+	"errors"
 	"strconv"
 )
 
@@ -51,18 +52,21 @@ func MakeScanner(l *Lang, source string) Scanner {
 }
 
 // ScanTokens scans the source code and returns list of tokens
-func (s *Scanner) ScanTokens() []Token {
+func (s *Scanner) ScanTokens() ([]Token, error) {
 	for !s.isAtEnd() {
 		s.start = s.current
-		s.scanToken()
+		err := s.scanToken()
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	s.tokens = append(s.tokens, MakeToken(EOF, "", nil, s.line))
 
-	return s.tokens
+	return s.tokens, nil
 }
 
-func (s *Scanner) scanToken() {
+func (s *Scanner) scanToken() error {
 	c := s.advance()
 	switch c {
 	case '(':
@@ -121,16 +125,21 @@ func (s *Scanner) scanToken() {
 	case '\n':
 		s.line++
 	case '"':
-		s.string()
+		err := s.string()
+		if err != nil {
+			return err
+		}
 	default:
 		if s.isDigit(c) {
 			s.number()
 		} else if s.isAlpha(c) {
 			s.identifier()
 		} else {
-			s.l.error(s.line, "Unexpected character.")
+			return errors.New(s.l.errorSimple(s.line, "Unexpected character."))
 		}
 	}
+
+	return nil
 }
 
 func (s *Scanner) addToken(tokenType TokenType, literal interface{}) {
@@ -174,7 +183,7 @@ func (s *Scanner) peekNext() rune {
 	return rune(s.source[s.current+1])
 }
 
-func (s *Scanner) string() {
+func (s *Scanner) string() error {
 	for s.peek() != '"' && !s.isAtEnd() {
 		if s.peek() == '\n' {
 			s.line++
@@ -184,12 +193,14 @@ func (s *Scanner) string() {
 	}
 
 	if s.isAtEnd() {
-		s.l.error(s.line, "Unterminated string.")
+		return errors.New(s.l.errorSimple(s.line, "Unterminated string."))
 	}
 
 	s.advance()
 
 	s.addToken(String, s.source[s.start+1:s.current-1])
+
+	return nil
 }
 
 func (s *Scanner) number() {

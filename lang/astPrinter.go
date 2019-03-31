@@ -13,7 +13,7 @@ func MakeAstPrinter() AstPrinter {
 }
 
 func (ap AstPrinter) Print(expr Expr) string {
-	return expr.Accept(ap).(string)
+	return fmt.Sprintf("%v", expr.Accept(ap))
 }
 
 func (ap AstPrinter) VisitBinaryExpr(expr Binary) interface{} {
