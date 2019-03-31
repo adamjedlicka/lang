@@ -23,6 +23,7 @@ var keywords = map[string]TokenType{
 	"while":  While,
 }
 
+// Scanner scans the source code and returns slice of Tokens
 type Scanner struct {
 	l *Lang
 
@@ -34,8 +35,9 @@ type Scanner struct {
 	line    int
 }
 
-func MakeScanner(l *Lang, source string) *Scanner {
-	s := new(Scanner)
+// MakeScanner creates new scanner
+func MakeScanner(l *Lang, source string) Scanner {
+	s := Scanner{}
 	s.l = l
 
 	s.source = source
@@ -48,6 +50,7 @@ func MakeScanner(l *Lang, source string) *Scanner {
 	return s
 }
 
+// ScanTokens scans the source code and returns list of tokens
 func (s *Scanner) ScanTokens() []Token {
 	for !s.isAtEnd() {
 		s.start = s.current

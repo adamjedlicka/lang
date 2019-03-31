@@ -1,7 +1,9 @@
 package lang
 
+// TokenType represents type of the Token
 type TokenType string
 
+// List of all tokens
 const (
 	LeftParen  TokenType = "LEFT_PAREN"
 	RightParen TokenType = "RIGHT_PAREN"

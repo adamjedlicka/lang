@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+// Token represents one token in the language
 type Token struct {
 	tokenType TokenType
 	lexeme    string
@@ -11,6 +12,7 @@ type Token struct {
 	line      int
 }
 
+// MakeToken creates new token
 func MakeToken(tokenType TokenType, lexeme string, literal interface{}, line int) Token {
 	t := Token{}
 	t.tokenType = tokenType
@@ -21,6 +23,7 @@ func MakeToken(tokenType TokenType, lexeme string, literal interface{}, line int
 	return t
 }
 
+// ToString returns string representation of the token
 func (t *Token) ToString() string {
 	return fmt.Sprintf("%v %v %v", t.tokenType, t.lexeme, t.literal)
 }

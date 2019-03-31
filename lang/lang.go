@@ -7,18 +7,21 @@ import (
 	"os"
 )
 
+// Lang is the main structure representing the language
 type Lang struct {
 	hadError bool
 }
 
-func MakeLang() *Lang {
-	l := new(Lang)
+// MakeLang creates new instance of the language struct
+func MakeLang() Lang {
+	l := Lang{}
 
 	l.hadError = false
 
 	return l
 }
 
+// RunFile executes source code from the file on path
 func (l *Lang) RunFile(path string) {
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -32,6 +35,7 @@ func (l *Lang) RunFile(path string) {
 	}
 }
 
+// RunPrompt runs code from interactive prompt
 func (l *Lang) RunPrompt() {
 	reader := bufio.NewReader(os.Stdin)
 
