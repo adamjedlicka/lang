@@ -57,7 +57,7 @@ func (l *Lang) run(source string) {
 	tokens := scanner.ScanTokens()
 
 	for _, token := range tokens {
-		fmt.Println(token.ToString())
+		fmt.Println(token)
 	}
 }
 

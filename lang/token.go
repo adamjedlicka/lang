@@ -23,7 +23,6 @@ func MakeToken(tokenType TokenType, lexeme string, literal interface{}, line int
 	return t
 }
 
-// ToString returns string representation of the token
-func (t *Token) ToString() string {
+func (t *Token) String() string {
 	return fmt.Sprintf("%v %v %v", t.tokenType, t.lexeme, t.literal)
 }
