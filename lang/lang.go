@@ -53,14 +53,14 @@ func (l *Lang) RunPrompt() {
 }
 
 func (l *Lang) run(source string) {
-	scanner := MakeScanner(l, source)
+	scanner := MakeScanner(source)
 	tokens, err := scanner.ScanTokens()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	parser := MakeParser(l, tokens)
+	parser := MakeParser(tokens)
 	expression, err := parser.Parse()
 	if err != nil {
 		fmt.Println(err)

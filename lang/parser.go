@@ -1,22 +1,21 @@
 package lang
 
+// Parser represents the language parser
 type Parser struct {
-	l *Lang
-
 	tokens  []Token
 	current int
 }
 
-func MakeParser(l *Lang, tokens []Token) Parser {
+// MakeParser creates new parser
+func MakeParser(tokens []Token) Parser {
 	p := Parser{}
-	p.l = l
-
 	p.tokens = tokens
 	p.current = 0
 
 	return p
 }
 
+// Parse parses list of tokens and tree structure representation of the code
 func (p *Parser) Parse() (Expr, error) {
 	return p.expression()
 }
@@ -25,6 +24,7 @@ func (p *Parser) expression() (Expr, error) {
 	return p.equality()
 }
 
+// equality → comparison ( ( "!=" | "==" ) comparison )* ;
 func (p *Parser) equality() (Expr, error) {
 	expr, err := p.comparison()
 	if err != nil {
@@ -44,6 +44,7 @@ func (p *Parser) equality() (Expr, error) {
 	return expr, nil
 }
 
+// comparison → addition ( ( ">" | ">=" | "<" | "<=" ) addition )* ;
 func (p *Parser) comparison() (Expr, error) {
 	expr, err := p.addition()
 	if err != nil {
@@ -63,6 +64,7 @@ func (p *Parser) comparison() (Expr, error) {
 	return expr, nil
 }
 
+// addition → multiplication ( ( "-" | "+" ) multiplication )* ;
 func (p *Parser) addition() (Expr, error) {
 	expr, err := p.multiplication()
 	if err != nil {
@@ -82,6 +84,7 @@ func (p *Parser) addition() (Expr, error) {
 	return expr, nil
 }
 
+// multiplication → unary ( ( "/" | "*" ) unary )* ;
 func (p *Parser) multiplication() (Expr, error) {
 	expr, err := p.unary()
 	if err != nil {
@@ -101,6 +104,8 @@ func (p *Parser) multiplication() (Expr, error) {
 	return expr, nil
 }
 
+// unary → ( "!" | "-" ) unary
+//       | primary ;
 func (p *Parser) unary() (Expr, error) {
 	if p.match(Bang, Minus) {
 		operator := p.previous()
@@ -115,6 +120,8 @@ func (p *Parser) unary() (Expr, error) {
 	return p.primary()
 }
 
+// primary → NUMBER | STRING | "false" | "true" | "null"
+//         | "(" expression ")" ;
 func (p *Parser) primary() (Expr, error) {
 	if p.match(False) {
 		return MakeLiteral(false), nil

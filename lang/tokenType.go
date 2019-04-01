@@ -5,17 +5,20 @@ type TokenType string
 
 // List of all tokens
 const (
-	LeftParen  TokenType = "LEFT_PAREN"
-	RightParen TokenType = "RIGHT_PAREN"
-	LeftBrace  TokenType = "RIGHT_BRACE"
-	RightBrace TokenType = "RIGHT_BRACE"
+	// Single character tokens
 	Comma      TokenType = "COMMA"
 	Dot        TokenType = "DOT"
+	LeftBrace  TokenType = "RIGHT_BRACE"
+	LeftParen  TokenType = "LEFT_PAREN"
 	Minus      TokenType = "MINUS"
 	Plus       TokenType = "PLUS"
-	Star       TokenType = "STAR"
+	RightBrace TokenType = "RIGHT_BRACE"
+	RightParen TokenType = "RIGHT_PAREN"
+	Semicolon  TokenType = "SEMICOLON"
 	Slash      TokenType = "SLASH"
+	Star       TokenType = "STAR"
 
+	// One or two character tokens
 	Bang         TokenType = "BANG"
 	BangEqual    TokenType = "BANG_EQUAL"
 	Equal        TokenType = "EQUAL"
@@ -25,16 +28,18 @@ const (
 	Less         TokenType = "LESS"
 	LessEqual    TokenType = "LESS_EQUAL"
 
+	// Literals
 	Identifier TokenType = "IDENTIFIER"
-	String     TokenType = "STRING"
 	Number     TokenType = "NUMBER"
+	String     TokenType = "STRING"
 
+	// Keywords
 	And    TokenType = "AND"
 	Class  TokenType = "CLASS"
 	Else   TokenType = "ELSE"
 	False  TokenType = "FALSE"
-	Func   TokenType = "FUNC"
 	For    TokenType = "FOR"
+	Func   TokenType = "FUNC"
 	If     TokenType = "IF"
 	Null   TokenType = "NULL"
 	Or     TokenType = "OR"

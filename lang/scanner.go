@@ -25,8 +25,6 @@ var keywords = map[string]TokenType{
 
 // Scanner scans the source code and returns slice of Tokens
 type Scanner struct {
-	l *Lang
-
 	source string
 	tokens []Token
 
@@ -36,10 +34,8 @@ type Scanner struct {
 }
 
 // MakeScanner creates new scanner
-func MakeScanner(l *Lang, source string) Scanner {
+func MakeScanner(source string) Scanner {
 	s := Scanner{}
-	s.l = l
-
 	s.source = source
 	s.tokens = make([]Token, 0)
 
