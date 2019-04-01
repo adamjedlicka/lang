@@ -104,8 +104,36 @@ func (p *Parser) printStatement() (Stmnt, error) {
 	return MakePrintStmnt(expr), nil
 }
 
+// expression → assignment ;
 func (p *Parser) expression() (Expr, error) {
-	return p.equality()
+	return p.assignment()
+}
+
+// assignment → IDENTIFIER "=" assignment
+//            | equality ;
+func (p *Parser) assignment() (Expr, error) {
+	expr, err := p.equality()
+	if err != nil {
+		return nil, err
+	}
+
+	if p.match(Equal) {
+		equals := p.previous()
+		value, err := p.assignment()
+		if err != nil {
+			return nil, err
+		}
+
+		if expr, ok := expr.(VariableExpr); ok {
+			name := expr.name
+
+			return MakeAssignExpr(name, value), nil
+		}
+
+		return nil, NewRuntimeError(equals.line, "Invalid assignment target.")
+	}
+
+	return expr, nil
 }
 
 // equality → comparison ( ( "!=" | "==" ) comparison )* ;

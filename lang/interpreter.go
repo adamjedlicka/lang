@@ -149,6 +149,20 @@ func (i *Interpreter) VisitVariableExpr(expr VariableExpr) (interface{}, error) 
 	return i.env.Get(expr.name)
 }
 
+func (i *Interpreter) VisitAssignExpr(expr AssignExpr) (interface{}, error) {
+	value, err := i.evaluate(expr.value)
+	if err != nil {
+		return nil, err
+	}
+
+	err = i.env.Assign(expr.name, value)
+	if err != nil {
+		return nil, err
+	}
+
+	return value, nil
+}
+
 func (i *Interpreter) VisitExpressionStmnt(stmnt ExpressionStmnt) (interface{}, error) {
 	return i.evaluate(stmnt.expr)
 }

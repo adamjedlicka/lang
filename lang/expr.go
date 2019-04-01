@@ -5,11 +5,28 @@ type Expr interface {
 }
 
 type ExprVisitor interface {
+	VisitAssignExpr(AssignExpr) (interface{}, error)
 	VisitBinaryExpr(BinaryExpr) (interface{}, error)
 	VisitGroupingExpr(GroupingExpr) (interface{}, error)
 	VisitLiteralExpr(LiteralExpr) (interface{}, error)
 	VisitUnaryExpr(UnaryExpr) (interface{}, error)
 	VisitVariableExpr(VariableExpr) (interface{}, error)
+}
+
+type AssignExpr struct {
+	name  Token
+	value Expr
+}
+
+func MakeAssignExpr(name Token, value Expr) AssignExpr {
+	return AssignExpr{
+		name:  name,
+		value: value,
+	}
+}
+
+func (e AssignExpr) Accept(visitor ExprVisitor) (interface{}, error) {
+	return visitor.VisitAssignExpr(e)
 }
 
 type BinaryExpr struct {
@@ -26,8 +43,8 @@ func MakeBinaryExpr(left Expr, operator Token, right Expr) BinaryExpr {
 	}
 }
 
-func (b BinaryExpr) Accept(visitor ExprVisitor) (interface{}, error) {
-	return visitor.VisitBinaryExpr(b)
+func (e BinaryExpr) Accept(visitor ExprVisitor) (interface{}, error) {
+	return visitor.VisitBinaryExpr(e)
 }
 
 type GroupingExpr struct {
@@ -40,8 +57,8 @@ func MakeGroupingExpr(expression Expr) GroupingExpr {
 	}
 }
 
-func (g GroupingExpr) Accept(visitor ExprVisitor) (interface{}, error) {
-	return visitor.VisitGroupingExpr(g)
+func (e GroupingExpr) Accept(visitor ExprVisitor) (interface{}, error) {
+	return visitor.VisitGroupingExpr(e)
 }
 
 type LiteralExpr struct {
@@ -54,8 +71,8 @@ func MakeLiteralExpr(value interface{}) LiteralExpr {
 	}
 }
 
-func (l LiteralExpr) Accept(visitor ExprVisitor) (interface{}, error) {
-	return visitor.VisitLiteralExpr(l)
+func (e LiteralExpr) Accept(visitor ExprVisitor) (interface{}, error) {
+	return visitor.VisitLiteralExpr(e)
 }
 
 type UnaryExpr struct {
@@ -70,8 +87,8 @@ func MakeUnaryExpr(operator Token, right Expr) UnaryExpr {
 	}
 }
 
-func (u UnaryExpr) Accept(visitor ExprVisitor) (interface{}, error) {
-	return visitor.VisitUnaryExpr(u)
+func (e UnaryExpr) Accept(visitor ExprVisitor) (interface{}, error) {
+	return visitor.VisitUnaryExpr(e)
 }
 
 type VariableExpr struct {
@@ -84,6 +101,6 @@ func MakeVariableExpr(name Token) VariableExpr {
 	}
 }
 
-func (u VariableExpr) Accept(visitor ExprVisitor) (interface{}, error) {
-	return visitor.VisitVariableExpr(u)
+func (e VariableExpr) Accept(visitor ExprVisitor) (interface{}, error) {
+	return visitor.VisitVariableExpr(e)
 }
