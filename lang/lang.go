@@ -61,19 +61,16 @@ func (l *Lang) run(source string) {
 	}
 
 	parser := MakeParser(tokens)
-	expression, err := parser.Parse()
+	stmnts, err := parser.Parse()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	interpreter := MakeInterpreter(expression)
-	value, err := interpreter.Interpret()
+	interpreter := MakeInterpreter(stmnts)
+	_, err = interpreter.Interpret()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-
-	fmt.Println(MakeAstPrinter().Print(expression))
-	fmt.Println(interpreter.Stringify(value))
 }

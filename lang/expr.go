@@ -1,10 +1,10 @@
 package lang
 
 type Expr interface {
-	Accept(Visitor) (interface{}, error)
+	Accept(ExprVisitor) (interface{}, error)
 }
 
-type Visitor interface {
+type ExprVisitor interface {
 	VisitBinaryExpr(Binary) (interface{}, error)
 	VisitGroupingExpr(Grouping) (interface{}, error)
 	VisitLiteralExpr(Literal) (interface{}, error)
@@ -25,7 +25,7 @@ func MakeBinary(left Expr, operator Token, right Expr) Binary {
 	}
 }
 
-func (b Binary) Accept(visitor Visitor) (interface{}, error) {
+func (b Binary) Accept(visitor ExprVisitor) (interface{}, error) {
 	return visitor.VisitBinaryExpr(b)
 }
 
@@ -39,7 +39,7 @@ func MakeGrouping(expression Expr) Grouping {
 	}
 }
 
-func (g Grouping) Accept(visitor Visitor) (interface{}, error) {
+func (g Grouping) Accept(visitor ExprVisitor) (interface{}, error) {
 	return visitor.VisitGroupingExpr(g)
 }
 
@@ -53,7 +53,7 @@ func MakeLiteral(value interface{}) Literal {
 	}
 }
 
-func (l Literal) Accept(visitor Visitor) (interface{}, error) {
+func (l Literal) Accept(visitor ExprVisitor) (interface{}, error) {
 	return visitor.VisitLiteralExpr(l)
 }
 
@@ -69,6 +69,6 @@ func MakeUnary(operator Token, right Expr) Unary {
 	}
 }
 
-func (u Unary) Accept(visitor Visitor) (interface{}, error) {
+func (u Unary) Accept(visitor ExprVisitor) (interface{}, error) {
 	return visitor.VisitUnaryExpr(u)
 }

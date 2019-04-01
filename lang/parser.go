@@ -15,9 +15,55 @@ func MakeParser(tokens []Token) Parser {
 	return p
 }
 
-// Parse parses list of tokens and tree structure representation of the code
-func (p *Parser) Parse() (Expr, error) {
-	return p.expression()
+func (p *Parser) Parse() ([]Stmnt, error) {
+	stmnts := make([]Stmnt, 0)
+
+	for !p.isAtEnd() {
+		stmnt, err := p.statement()
+		if err != nil {
+			return nil, err
+		}
+
+		stmnts = append(stmnts, stmnt)
+	}
+
+	return stmnts, nil
+}
+
+func (p *Parser) statement() (Stmnt, error) {
+	if p.match(Print) {
+		return p.printStatement()
+	}
+
+	return p.expressionStatement()
+}
+
+func (p *Parser) expressionStatement() (Stmnt, error) {
+	expr, err := p.expression()
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = p.consume(Semicolon, "Expected ; after expression.")
+	if err != nil {
+		return nil, err
+	}
+
+	return MakeExpressionStmnt(expr), nil
+}
+
+func (p *Parser) printStatement() (Stmnt, error) {
+	expr, err := p.expression()
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = p.consume(Semicolon, "Expected ; after value.")
+	if err != nil {
+		return nil, err
+	}
+
+	return MakePrintStmnt(expr), nil
 }
 
 func (p *Parser) expression() (Expr, error) {

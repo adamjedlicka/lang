@@ -6,19 +6,26 @@ import (
 )
 
 type AstPrinter struct {
+	stmnts []Stmnt
 }
 
-func MakeAstPrinter() AstPrinter {
-	return AstPrinter{}
+func MakeAstPrinter(stmnts []Stmnt) AstPrinter {
+	ap := AstPrinter{}
+	ap.stmnts = stmnts
+
+	return ap
 }
 
-func (ap AstPrinter) Print(expr Expr) string {
-	text, err := expr.Accept(ap)
-	if err != nil {
-		return fmt.Sprintf("%v", err)
+func (ap AstPrinter) Print() {
+	for _, stmnt := range ap.stmnts {
+		text, err := stmnt.Accept(ap)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		fmt.Println(text)
 	}
-
-	return fmt.Sprintf("%v", text)
 }
 
 func (ap AstPrinter) VisitBinaryExpr(expr Binary) (interface{}, error) {
@@ -39,6 +46,14 @@ func (ap AstPrinter) VisitLiteralExpr(expr Literal) (interface{}, error) {
 
 func (ap AstPrinter) VisitUnaryExpr(expr Unary) (interface{}, error) {
 	return ap.parenthesize(expr.operator.lexeme, expr.right)
+}
+
+func (ap AstPrinter) VisitExpressionStmnt(stmnt ExpressionStmnt) (interface{}, error) {
+	return stmnt.expr.Accept(ap)
+}
+
+func (ap AstPrinter) VisitPrintStmnt(stmnt PrintStmnt) (interface{}, error) {
+	return ap.parenthesize("PRINT", stmnt.expr)
 }
 
 func (ap AstPrinter) parenthesize(name string, exprs ...Expr) (string, error) {

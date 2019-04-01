@@ -5,18 +5,29 @@ import (
 )
 
 type Interpreter struct {
-	expr Expr
+	stmnts []Stmnt
 }
 
-func MakeInterpreter(expr Expr) Interpreter {
+func MakeInterpreter(stmnts []Stmnt) Interpreter {
 	i := Interpreter{}
-	i.expr = expr
+	i.stmnts = stmnts
 
 	return i
 }
 
 func (i *Interpreter) Interpret() (interface{}, error) {
-	return i.evaluate(i.expr)
+	var value interface{}
+	var err error
+
+	for _, stmnt := range i.stmnts {
+		value, err = stmnt.Accept(i)
+		if err != nil {
+			return nil, err
+		}
+
+	}
+
+	return value, err
 }
 
 func (i *Interpreter) VisitLiteralExpr(expr Literal) (interface{}, error) {
@@ -130,6 +141,21 @@ func (i *Interpreter) VisitUnaryExpr(expr Unary) (interface{}, error) {
 	}
 
 	return nil, NewRuntimeError(expr.operator.line, "Error while evaluating unary operand.")
+}
+
+func (i *Interpreter) VisitExpressionStmnt(stmnt ExpressionStmnt) (interface{}, error) {
+	return i.evaluate(stmnt.expr)
+}
+
+func (i *Interpreter) VisitPrintStmnt(stmnt PrintStmnt) (interface{}, error) {
+	value, err := i.evaluate(stmnt.expr)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println(i.Stringify(value))
+
+	return nil, nil
 }
 
 func (i *Interpreter) evaluate(expr Expr) (interface{}, error) {

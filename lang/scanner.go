@@ -80,6 +80,8 @@ func (s *Scanner) scanToken() error {
 		s.addToken(Minus, nil)
 	case '+':
 		s.addToken(Plus, nil)
+	case ';':
+		s.addToken(Semicolon, nil)
 	case '*':
 		s.addToken(Star, nil)
 	case '!':
