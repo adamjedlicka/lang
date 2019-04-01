@@ -56,38 +56,16 @@ func (l *Lang) run(source string) {
 	scanner := MakeScanner(l, source)
 	tokens, err := scanner.ScanTokens()
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 
 	parser := MakeParser(l, tokens)
 	expression, err := parser.Parse()
 	if err != nil {
-		return
-	}
-
-	if l.hadError {
+		fmt.Println(err)
 		return
 	}
 
 	fmt.Println(MakeAstPrinter().Print(expression))
-}
-
-func (l *Lang) errorSimple(line int, message string) string {
-	return l.report(line, "", message)
-}
-
-func (l *Lang) errorBadToken(token Token, message string) string {
-	if token.tokenType == EOF {
-		return l.report(token.line, " at end", message)
-	} else {
-		return l.report(token.line, " at '"+token.lexeme+"'", message)
-	}
-}
-
-func (l *Lang) report(line int, where, message string) string {
-	err := fmt.Sprintf("[line %d] Error%s: %s\n", line, where, message)
-	l.hadError = true
-	fmt.Print(err)
-
-	return err
 }

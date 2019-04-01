@@ -1,7 +1,6 @@
 package lang
 
 import (
-	"errors"
 	"strconv"
 )
 
@@ -135,7 +134,7 @@ func (s *Scanner) scanToken() error {
 		} else if s.isAlpha(c) {
 			s.identifier()
 		} else {
-			return errors.New(s.l.errorSimple(s.line, "Unexpected character."))
+			return NewScannerError(s.line, "Unexpected character.")
 		}
 	}
 
@@ -193,7 +192,7 @@ func (s *Scanner) string() error {
 	}
 
 	if s.isAtEnd() {
-		return errors.New(s.l.errorSimple(s.line, "Unterminated string."))
+		return NewScannerError(s.line, "Unterminated string.")
 	}
 
 	s.advance()

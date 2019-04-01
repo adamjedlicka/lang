@@ -1,9 +1,5 @@
 package lang
 
-import (
-	"errors"
-)
-
 type Parser struct {
 	l *Lang
 
@@ -134,12 +130,15 @@ func (p *Parser) primary() (Expr, error) {
 			return nil, err
 		}
 
-		p.consume(RightParen, "Expected ')' after expression.")
+		_, err = p.consume(RightParen, "Expected ')' after expression.")
+		if err != nil {
+			return nil, err
+		}
 
 		return MakeGrouping(expr), nil
 	}
 
-	return nil, errors.New(p.l.errorBadToken(p.peek(), "Unexpected token."))
+	return nil, NewParserError(p.peek(), "Unexpected token.")
 }
 
 func (p *Parser) consume(tokenType TokenType, message string) (Token, error) {
@@ -147,7 +146,7 @@ func (p *Parser) consume(tokenType TokenType, message string) (Token, error) {
 		return p.advance(), nil
 	}
 
-	return Token{}, errors.New(p.l.errorBadToken(p.peek(), message))
+	return Token{}, NewParserError(p.peek(), message)
 }
 
 func (p *Parser) match(tokenTypes ...TokenType) bool {
