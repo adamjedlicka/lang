@@ -5,17 +5,19 @@ import (
 )
 
 type Interpreter struct {
+	env    Env
 	stmnts []Stmnt
 }
 
-func MakeInterpreter(stmnts []Stmnt) Interpreter {
-	i := Interpreter{}
-	i.stmnts = stmnts
-
-	return i
+func MakeInterpreter() Interpreter {
+	return Interpreter{
+		env: MakeEnv(),
+	}
 }
 
-func (i *Interpreter) Interpret() (interface{}, error) {
+func (i *Interpreter) Interpret(stmnts []Stmnt) (interface{}, error) {
+	i.stmnts = stmnts
+
 	var value interface{}
 	var err error
 
@@ -143,6 +145,10 @@ func (i *Interpreter) VisitUnaryExpr(expr Unary) (interface{}, error) {
 	return nil, NewRuntimeError(expr.operator.line, "Error while evaluating unary operand.")
 }
 
+func (i *Interpreter) VisitVariableExpr(expr Variable) (interface{}, error) {
+	return i.env.Get(expr.name)
+}
+
 func (i *Interpreter) VisitExpressionStmnt(stmnt ExpressionStmnt) (interface{}, error) {
 	return i.evaluate(stmnt.expr)
 }
@@ -154,6 +160,22 @@ func (i *Interpreter) VisitPrintStmnt(stmnt PrintStmnt) (interface{}, error) {
 	}
 
 	fmt.Println(i.Stringify(value))
+
+	return nil, nil
+}
+
+func (i *Interpreter) VisitVarStmnt(stmnt VarStmnt) (interface{}, error) {
+	var err error
+	var value interface{}
+
+	if stmnt.initializer != nil {
+		value, err = i.evaluate(stmnt.initializer)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	i.env.Define(stmnt.name.lexeme, value)
 
 	return nil, nil
 }

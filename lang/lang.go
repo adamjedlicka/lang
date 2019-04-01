@@ -9,12 +9,20 @@ import (
 
 // Lang is the main structure representing the language
 type Lang struct {
+	scanner     Scanner
+	parser      Parser
+	interpreter Interpreter
+
 	hadError bool
 }
 
 // MakeLang creates new instance of the language struct
 func MakeLang() Lang {
-	l := Lang{}
+	l := Lang{
+		scanner:     MakeScanner(),
+		parser:      MakeParser(),
+		interpreter: MakeInterpreter(),
+	}
 
 	l.hadError = false
 
@@ -53,22 +61,19 @@ func (l *Lang) RunPrompt() {
 }
 
 func (l *Lang) run(source string) {
-	scanner := MakeScanner(source)
-	tokens, err := scanner.ScanTokens()
+	tokens, err := l.scanner.ScanTokens(source)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	parser := MakeParser(tokens)
-	stmnts, err := parser.Parse()
+	stmnts, err := l.parser.Parse(tokens)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	interpreter := MakeInterpreter(stmnts)
-	_, err = interpreter.Interpret()
+	_, err = l.interpreter.Interpret(stmnts)
 	if err != nil {
 		fmt.Println(err)
 		return

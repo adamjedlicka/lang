@@ -7,6 +7,7 @@ type Stmnt interface {
 type StmntVisitor interface {
 	VisitExpressionStmnt(ExpressionStmnt) (interface{}, error)
 	VisitPrintStmnt(PrintStmnt) (interface{}, error)
+	VisitVarStmnt(VarStmnt) (interface{}, error)
 }
 
 type ExpressionStmnt struct {
@@ -35,4 +36,20 @@ func MakePrintStmnt(expr Expr) PrintStmnt {
 
 func (e PrintStmnt) Accept(visitor StmntVisitor) (interface{}, error) {
 	return visitor.VisitPrintStmnt(e)
+}
+
+type VarStmnt struct {
+	name        Token
+	initializer Expr
+}
+
+func MakeVarStmnt(name Token, initializer Expr) VarStmnt {
+	return VarStmnt{
+		name:        name,
+		initializer: initializer,
+	}
+}
+
+func (e VarStmnt) Accept(visitor StmntVisitor) (interface{}, error) {
+	return visitor.VisitVarStmnt(e)
 }

@@ -1,2 +1,5 @@
-print "Hello, World!";
-print 1 + 2 * 3 - 4;
+var str = "Hello";
+var num = 1 + 2 * 3 - 4;
+
+print str + " " + "World!";
+print num;

@@ -34,8 +34,12 @@ type Scanner struct {
 }
 
 // MakeScanner creates new scanner
-func MakeScanner(source string) Scanner {
-	s := Scanner{}
+func MakeScanner() Scanner {
+	return Scanner{}
+}
+
+// ScanTokens scans the source code and returns list of tokens
+func (s *Scanner) ScanTokens(source string) ([]Token, error) {
 	s.source = source
 	s.tokens = make([]Token, 0)
 
@@ -43,11 +47,6 @@ func MakeScanner(source string) Scanner {
 	s.current = 0
 	s.line = 1
 
-	return s
-}
-
-// ScanTokens scans the source code and returns list of tokens
-func (s *Scanner) ScanTokens() ([]Token, error) {
 	for !s.isAtEnd() {
 		s.start = s.current
 		err := s.scanToken()

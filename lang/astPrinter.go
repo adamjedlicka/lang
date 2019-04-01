@@ -48,12 +48,20 @@ func (ap AstPrinter) VisitUnaryExpr(expr Unary) (interface{}, error) {
 	return ap.parenthesize(expr.operator.lexeme, expr.right)
 }
 
+func (ap AstPrinter) VisitVariableExpr(expr Variable) (interface{}, error) {
+	return expr.name, nil
+}
+
 func (ap AstPrinter) VisitExpressionStmnt(stmnt ExpressionStmnt) (interface{}, error) {
 	return stmnt.expr.Accept(ap)
 }
 
 func (ap AstPrinter) VisitPrintStmnt(stmnt PrintStmnt) (interface{}, error) {
 	return ap.parenthesize("PRINT", stmnt.expr)
+}
+
+func (ap AstPrinter) VisitVarStmnt(stmnt VarStmnt) (interface{}, error) {
+	return fmt.Sprintf("VAR %v = %v", stmnt.name, stmnt.initializer), nil
 }
 
 func (ap AstPrinter) parenthesize(name string, exprs ...Expr) (string, error) {
