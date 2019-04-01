@@ -32,15 +32,15 @@ func (i *Interpreter) Interpret(stmnts []Stmnt) (interface{}, error) {
 	return value, err
 }
 
-func (i *Interpreter) VisitLiteralExpr(expr Literal) (interface{}, error) {
+func (i *Interpreter) VisitLiteralExpr(expr LiteralExpr) (interface{}, error) {
 	return expr.value, nil
 }
 
-func (i *Interpreter) VisitGroupingExpr(expr Grouping) (interface{}, error) {
+func (i *Interpreter) VisitGroupingExpr(expr GroupingExpr) (interface{}, error) {
 	return i.evaluate(expr.expression)
 }
 
-func (i *Interpreter) VisitBinaryExpr(expr Binary) (interface{}, error) {
+func (i *Interpreter) VisitBinaryExpr(expr BinaryExpr) (interface{}, error) {
 	left, err := i.evaluate(expr.left)
 	if err != nil {
 		return nil, err
@@ -124,7 +124,7 @@ func (i *Interpreter) VisitBinaryExpr(expr Binary) (interface{}, error) {
 	return nil, NewRuntimeError(expr.operator.line, "Error while evaluating binary operand.")
 }
 
-func (i *Interpreter) VisitUnaryExpr(expr Unary) (interface{}, error) {
+func (i *Interpreter) VisitUnaryExpr(expr UnaryExpr) (interface{}, error) {
 	right, err := i.evaluate(expr.right)
 	if err != nil {
 		return nil, err
@@ -145,7 +145,7 @@ func (i *Interpreter) VisitUnaryExpr(expr Unary) (interface{}, error) {
 	return nil, NewRuntimeError(expr.operator.line, "Error while evaluating unary operand.")
 }
 
-func (i *Interpreter) VisitVariableExpr(expr Variable) (interface{}, error) {
+func (i *Interpreter) VisitVariableExpr(expr VariableExpr) (interface{}, error) {
 	return i.env.Get(expr.name)
 }
 

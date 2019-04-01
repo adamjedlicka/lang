@@ -28,15 +28,15 @@ func (ap AstPrinter) Print() {
 	}
 }
 
-func (ap AstPrinter) VisitBinaryExpr(expr Binary) (interface{}, error) {
+func (ap AstPrinter) VisitBinaryExpr(expr BinaryExpr) (interface{}, error) {
 	return ap.parenthesize(expr.operator.lexeme, expr.left, expr.right)
 }
 
-func (ap AstPrinter) VisitGroupingExpr(expr Grouping) (interface{}, error) {
+func (ap AstPrinter) VisitGroupingExpr(expr GroupingExpr) (interface{}, error) {
 	return ap.parenthesize("group", expr.expression)
 }
 
-func (ap AstPrinter) VisitLiteralExpr(expr Literal) (interface{}, error) {
+func (ap AstPrinter) VisitLiteralExpr(expr LiteralExpr) (interface{}, error) {
 	if expr.value == nil {
 		return "null", nil
 	}
@@ -44,11 +44,11 @@ func (ap AstPrinter) VisitLiteralExpr(expr Literal) (interface{}, error) {
 	return expr.value, nil
 }
 
-func (ap AstPrinter) VisitUnaryExpr(expr Unary) (interface{}, error) {
+func (ap AstPrinter) VisitUnaryExpr(expr UnaryExpr) (interface{}, error) {
 	return ap.parenthesize(expr.operator.lexeme, expr.right)
 }
 
-func (ap AstPrinter) VisitVariableExpr(expr Variable) (interface{}, error) {
+func (ap AstPrinter) VisitVariableExpr(expr VariableExpr) (interface{}, error) {
 	return expr.name, nil
 }
 

@@ -28,7 +28,7 @@ const (
 	Less         TokenType = "LESS"
 	LessEqual    TokenType = "LESS_EQUAL"
 
-	// Literals
+	// LiteralExprs
 	Identifier TokenType = "IDENTIFIER"
 	Number     TokenType = "NUMBER"
 	String     TokenType = "STRING"

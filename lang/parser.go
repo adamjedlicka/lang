@@ -122,7 +122,7 @@ func (p *Parser) equality() (Expr, error) {
 			return nil, err
 		}
 
-		expr = MakeBinary(expr, operator, right)
+		expr = MakeBinaryExpr(expr, operator, right)
 	}
 
 	return expr, nil
@@ -142,7 +142,7 @@ func (p *Parser) comparison() (Expr, error) {
 			return nil, err
 		}
 
-		expr = MakeBinary(expr, operator, right)
+		expr = MakeBinaryExpr(expr, operator, right)
 	}
 
 	return expr, nil
@@ -162,7 +162,7 @@ func (p *Parser) addition() (Expr, error) {
 			return nil, err
 		}
 
-		expr = MakeBinary(expr, operator, right)
+		expr = MakeBinaryExpr(expr, operator, right)
 	}
 
 	return expr, nil
@@ -182,7 +182,7 @@ func (p *Parser) multiplication() (Expr, error) {
 			return nil, err
 		}
 
-		expr = MakeBinary(expr, operator, right)
+		expr = MakeBinaryExpr(expr, operator, right)
 	}
 
 	return expr, nil
@@ -198,7 +198,7 @@ func (p *Parser) unary() (Expr, error) {
 			return nil, err
 		}
 
-		return MakeUnary(operator, right), nil
+		return MakeUnaryExpr(operator, right), nil
 	}
 
 	return p.primary()
@@ -210,13 +210,13 @@ func (p *Parser) unary() (Expr, error) {
 //         | IDENTIFIER ;
 func (p *Parser) primary() (Expr, error) {
 	if p.match(False) {
-		return MakeLiteral(false), nil
+		return MakeLiteralExpr(false), nil
 	} else if p.match(True) {
-		return MakeLiteral(true), nil
+		return MakeLiteralExpr(true), nil
 	} else if p.match(Null) {
-		return MakeLiteral(nil), nil
+		return MakeLiteralExpr(nil), nil
 	} else if p.match(Number, String) {
-		return MakeLiteral(p.previous().literal), nil
+		return MakeLiteralExpr(p.previous().literal), nil
 	} else if p.match(LeftParen) {
 		expr, err := p.expression()
 		if err != nil {
@@ -228,9 +228,9 @@ func (p *Parser) primary() (Expr, error) {
 			return nil, err
 		}
 
-		return MakeGrouping(expr), nil
+		return MakeGroupingExpr(expr), nil
 	} else if p.match(Identifier) {
-		return MakeVariable(p.previous()), nil
+		return MakeVariableExpr(p.previous()), nil
 	}
 
 	return nil, NewParserError(p.peek(), "Unexpected token.")

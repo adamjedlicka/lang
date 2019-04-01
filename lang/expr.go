@@ -5,85 +5,85 @@ type Expr interface {
 }
 
 type ExprVisitor interface {
-	VisitBinaryExpr(Binary) (interface{}, error)
-	VisitGroupingExpr(Grouping) (interface{}, error)
-	VisitLiteralExpr(Literal) (interface{}, error)
-	VisitUnaryExpr(Unary) (interface{}, error)
-	VisitVariableExpr(Variable) (interface{}, error)
+	VisitBinaryExpr(BinaryExpr) (interface{}, error)
+	VisitGroupingExpr(GroupingExpr) (interface{}, error)
+	VisitLiteralExpr(LiteralExpr) (interface{}, error)
+	VisitUnaryExpr(UnaryExpr) (interface{}, error)
+	VisitVariableExpr(VariableExpr) (interface{}, error)
 }
 
-type Binary struct {
+type BinaryExpr struct {
 	left     Expr
 	operator Token
 	right    Expr
 }
 
-func MakeBinary(left Expr, operator Token, right Expr) Binary {
-	return Binary{
+func MakeBinaryExpr(left Expr, operator Token, right Expr) BinaryExpr {
+	return BinaryExpr{
 		left:     left,
 		operator: operator,
 		right:    right,
 	}
 }
 
-func (b Binary) Accept(visitor ExprVisitor) (interface{}, error) {
+func (b BinaryExpr) Accept(visitor ExprVisitor) (interface{}, error) {
 	return visitor.VisitBinaryExpr(b)
 }
 
-type Grouping struct {
+type GroupingExpr struct {
 	expression Expr
 }
 
-func MakeGrouping(expression Expr) Grouping {
-	return Grouping{
+func MakeGroupingExpr(expression Expr) GroupingExpr {
+	return GroupingExpr{
 		expression: expression,
 	}
 }
 
-func (g Grouping) Accept(visitor ExprVisitor) (interface{}, error) {
+func (g GroupingExpr) Accept(visitor ExprVisitor) (interface{}, error) {
 	return visitor.VisitGroupingExpr(g)
 }
 
-type Literal struct {
+type LiteralExpr struct {
 	value interface{}
 }
 
-func MakeLiteral(value interface{}) Literal {
-	return Literal{
+func MakeLiteralExpr(value interface{}) LiteralExpr {
+	return LiteralExpr{
 		value: value,
 	}
 }
 
-func (l Literal) Accept(visitor ExprVisitor) (interface{}, error) {
+func (l LiteralExpr) Accept(visitor ExprVisitor) (interface{}, error) {
 	return visitor.VisitLiteralExpr(l)
 }
 
-type Unary struct {
+type UnaryExpr struct {
 	operator Token
 	right    Expr
 }
 
-func MakeUnary(operator Token, right Expr) Unary {
-	return Unary{
+func MakeUnaryExpr(operator Token, right Expr) UnaryExpr {
+	return UnaryExpr{
 		operator: operator,
 		right:    right,
 	}
 }
 
-func (u Unary) Accept(visitor ExprVisitor) (interface{}, error) {
+func (u UnaryExpr) Accept(visitor ExprVisitor) (interface{}, error) {
 	return visitor.VisitUnaryExpr(u)
 }
 
-type Variable struct {
+type VariableExpr struct {
 	name Token
 }
 
-func MakeVariable(name Token) Variable {
-	return Variable{
+func MakeVariableExpr(name Token) VariableExpr {
+	return VariableExpr{
 		name: name,
 	}
 }
 
-func (u Variable) Accept(visitor ExprVisitor) (interface{}, error) {
+func (u VariableExpr) Accept(visitor ExprVisitor) (interface{}, error) {
 	return visitor.VisitVariableExpr(u)
 }
