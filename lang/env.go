@@ -5,11 +5,13 @@ import (
 )
 
 type Env struct {
-	values map[string]interface{}
+	enclosing *Env
+	values    map[string]interface{}
 }
 
-func MakeEnv() Env {
-	env := Env{}
+func MakeEnv(enclosing *Env) *Env {
+	env := new(Env)
+	env.enclosing = enclosing
 	env.values = make(map[string]interface{})
 
 	return env
@@ -20,25 +22,27 @@ func (env *Env) Define(name string, value interface{}) {
 }
 
 func (env *Env) Assign(name Token, value interface{}) error {
-	_, ok := env.values[name.lexeme]
-	if !ok {
-		return NewRuntimeError(
-			name.line,
-			fmt.Sprintf("Undefined variable '%s'.", name.lexeme))
+	if _, ok := env.values[name.lexeme]; ok {
+		env.values[name.lexeme] = value
+
+		return nil
 	}
 
-	env.values[name.lexeme] = value
-
-	return nil
+	return NewRuntimeError(
+		name.line,
+		fmt.Sprintf("Undefined variable '%s'.", name.lexeme))
 }
 
 func (env *Env) Get(name Token) (interface{}, error) {
-	value, ok := env.values[name.lexeme]
-	if !ok {
-		return nil, NewRuntimeError(
-			name.line,
-			fmt.Sprintf("Undefined variable '%s'.", name.lexeme))
+	if value, ok := env.values[name.lexeme]; ok {
+		return value, nil
 	}
 
-	return value, nil
+	if env.enclosing != nil {
+		return env.enclosing.Get(name)
+	}
+
+	return nil, NewRuntimeError(
+		name.line,
+		fmt.Sprintf("Undefined variable '%s'.", name.lexeme))
 }

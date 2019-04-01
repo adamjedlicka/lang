@@ -5,13 +5,13 @@ import (
 )
 
 type Interpreter struct {
-	env    Env
+	env    *Env
 	stmnts []Stmnt
 }
 
 func MakeInterpreter() Interpreter {
 	return Interpreter{
-		env: MakeEnv(),
+		env: MakeEnv(nil),
 	}
 }
 
@@ -163,6 +163,10 @@ func (i *Interpreter) VisitAssignExpr(expr AssignExpr) (interface{}, error) {
 	return value, nil
 }
 
+func (i *Interpreter) VisitBlockStmnt(stmnt BlockStmnt) (interface{}, error) {
+	return i.executeBlock(stmnt.stmnts, MakeEnv(i.env))
+}
+
 func (i *Interpreter) VisitExpressionStmnt(stmnt ExpressionStmnt) (interface{}, error) {
 	return i.evaluate(stmnt.expr)
 }
@@ -196,6 +200,27 @@ func (i *Interpreter) VisitVarStmnt(stmnt VarStmnt) (interface{}, error) {
 
 func (i *Interpreter) evaluate(expr Expr) (interface{}, error) {
 	return expr.Accept(i)
+}
+
+func (i *Interpreter) executeBlock(stmnts []Stmnt, env *Env) (interface{}, error) {
+	var value interface{}
+	var err error
+
+	previous := i.env
+
+	i.env = env
+
+	for _, stmnt := range stmnts {
+		value, err = stmnt.Accept(i)
+		if err != nil {
+			i.env = previous
+			return nil, err
+		}
+	}
+
+	i.env = previous
+
+	return value, nil
 }
 
 func (i *Interpreter) isTruthy(value interface{}) bool {

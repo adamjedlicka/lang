@@ -5,9 +5,24 @@ type Stmnt interface {
 }
 
 type StmntVisitor interface {
+	VisitBlockStmnt(BlockStmnt) (interface{}, error)
 	VisitExpressionStmnt(ExpressionStmnt) (interface{}, error)
 	VisitPrintStmnt(PrintStmnt) (interface{}, error)
 	VisitVarStmnt(VarStmnt) (interface{}, error)
+}
+
+type BlockStmnt struct {
+	stmnts []Stmnt
+}
+
+func MakeBlockStmnt(stmnts []Stmnt) BlockStmnt {
+	return BlockStmnt{
+		stmnts: stmnts,
+	}
+}
+
+func (e BlockStmnt) Accept(visitor StmntVisitor) (interface{}, error) {
+	return visitor.VisitBlockStmnt(e)
 }
 
 type ExpressionStmnt struct {
