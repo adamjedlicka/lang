@@ -68,8 +68,12 @@ func (l *Lang) run(source string) {
 	}
 
 	interpreter := MakeInterpreter(expression)
-	value := interpreter.Interpret()
+	value, err := interpreter.Interpret()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	fmt.Println(MakeAstPrinter().Print(expression))
-	fmt.Println(value)
+	fmt.Println(interpreter.Stringify(value))
 }

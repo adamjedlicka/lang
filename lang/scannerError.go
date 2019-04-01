@@ -18,5 +18,5 @@ func NewScannerError(line int, message string) ScannerError {
 }
 
 func (e ScannerError) Error() string {
-	return fmt.Sprintf("[line %v] Error: %v", e.line, e.message)
+	return fmt.Sprintf("[line %v] ScannerError: %v", e.line, e.message)
 }
