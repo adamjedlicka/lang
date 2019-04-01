@@ -21,8 +21,8 @@ func MakeBlockStmnt(stmnts []Stmnt) BlockStmnt {
 	}
 }
 
-func (e BlockStmnt) Accept(visitor StmntVisitor) (interface{}, error) {
-	return visitor.VisitBlockStmnt(e)
+func (s BlockStmnt) Accept(visitor StmntVisitor) (interface{}, error) {
+	return visitor.VisitBlockStmnt(s)
 }
 
 type ExpressionStmnt struct {
@@ -35,8 +35,8 @@ func MakeExpressionStmnt(expr Expr) ExpressionStmnt {
 	}
 }
 
-func (e ExpressionStmnt) Accept(visitor StmntVisitor) (interface{}, error) {
-	return visitor.VisitExpressionStmnt(e)
+func (s ExpressionStmnt) Accept(visitor StmntVisitor) (interface{}, error) {
+	return visitor.VisitExpressionStmnt(s)
 }
 
 type PrintStmnt struct {
@@ -49,8 +49,8 @@ func MakePrintStmnt(expr Expr) PrintStmnt {
 	}
 }
 
-func (e PrintStmnt) Accept(visitor StmntVisitor) (interface{}, error) {
-	return visitor.VisitPrintStmnt(e)
+func (s PrintStmnt) Accept(visitor StmntVisitor) (interface{}, error) {
+	return visitor.VisitPrintStmnt(s)
 }
 
 type VarStmnt struct {
@@ -65,6 +65,6 @@ func MakeVarStmnt(name Token, initializer Expr) VarStmnt {
 	}
 }
 
-func (e VarStmnt) Accept(visitor StmntVisitor) (interface{}, error) {
-	return visitor.VisitVarStmnt(e)
+func (s VarStmnt) Accept(visitor StmntVisitor) (interface{}, error) {
+	return visitor.VisitVarStmnt(s)
 }

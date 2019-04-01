@@ -8,7 +8,7 @@ const (
 	// Single character tokens
 	Comma      TokenType = "COMMA"
 	Dot        TokenType = "DOT"
-	LeftBrace  TokenType = "RIGHT_BRACE"
+	LeftBrace  TokenType = "LEFT_BRACE"
 	LeftParen  TokenType = "LEFT_PAREN"
 	Minus      TokenType = "MINUS"
 	Plus       TokenType = "PLUS"

@@ -1,13 +1,19 @@
-var global = "global";
-
+var a = "global a";
+var b = "global b";
+var c = "global c";
 {
-    var global = "shadowed";
-    print global;
-
-    {
-        var local = "local";
-        print global + local;
-    }
+  var a = "outer a";
+  var b = "outer b";
+  {
+    var a = "inner a";
+    print a;
+    print b;
+    print c;
+  }
+  print a;
+  print b;
+  print c;
 }
-
-print global;
+print a;
+print b;
+print c;
