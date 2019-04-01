@@ -44,7 +44,7 @@ func (l *Lang) RunPrompt() {
 
 		text, err := reader.ReadString('\n')
 		if err != nil {
-			panic(err)
+			return
 		}
 
 		l.run(text)
