@@ -67,5 +67,9 @@ func (l *Lang) run(source string) {
 		return
 	}
 
+	interpreter := MakeInterpreter(expression)
+	value := interpreter.Interpret()
+
 	fmt.Println(MakeAstPrinter().Print(expression))
+	fmt.Println(value)
 }
