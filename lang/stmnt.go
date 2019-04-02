@@ -1,14 +1,14 @@
 package lang
 
 type Stmnt interface {
-	Accept(StmntVisitor) (interface{}, error)
+	Accept(StmntVisitor) error
 }
 
 type StmntVisitor interface {
-	VisitBlockStmnt(BlockStmnt) (interface{}, error)
-	VisitExpressionStmnt(ExpressionStmnt) (interface{}, error)
-	VisitPrintStmnt(PrintStmnt) (interface{}, error)
-	VisitVarStmnt(VarStmnt) (interface{}, error)
+	VisitBlockStmnt(BlockStmnt) error
+	VisitExpressionStmnt(ExpressionStmnt) error
+	VisitPrintStmnt(PrintStmnt) error
+	VisitVarStmnt(VarStmnt) error
 }
 
 type BlockStmnt struct {
@@ -21,7 +21,7 @@ func MakeBlockStmnt(stmnts []Stmnt) BlockStmnt {
 	}
 }
 
-func (s BlockStmnt) Accept(visitor StmntVisitor) (interface{}, error) {
+func (s BlockStmnt) Accept(visitor StmntVisitor) error {
 	return visitor.VisitBlockStmnt(s)
 }
 
@@ -35,7 +35,7 @@ func MakeExpressionStmnt(expr Expr) ExpressionStmnt {
 	}
 }
 
-func (s ExpressionStmnt) Accept(visitor StmntVisitor) (interface{}, error) {
+func (s ExpressionStmnt) Accept(visitor StmntVisitor) error {
 	return visitor.VisitExpressionStmnt(s)
 }
 
@@ -49,7 +49,7 @@ func MakePrintStmnt(expr Expr) PrintStmnt {
 	}
 }
 
-func (s PrintStmnt) Accept(visitor StmntVisitor) (interface{}, error) {
+func (s PrintStmnt) Accept(visitor StmntVisitor) error {
 	return visitor.VisitPrintStmnt(s)
 }
 
@@ -65,6 +65,6 @@ func MakeVarStmnt(name Token, initializer Expr) VarStmnt {
 	}
 }
 
-func (s VarStmnt) Accept(visitor StmntVisitor) (interface{}, error) {
+func (s VarStmnt) Accept(visitor StmntVisitor) error {
 	return visitor.VisitVarStmnt(s)
 }

@@ -15,21 +15,17 @@ func MakeInterpreter() Interpreter {
 	}
 }
 
-func (i *Interpreter) Interpret(stmnts []Stmnt) (interface{}, error) {
+func (i *Interpreter) Interpret(stmnts []Stmnt) error {
 	i.stmnts = stmnts
 
-	var value interface{}
-	var err error
-
 	for _, stmnt := range i.stmnts {
-		value, err = stmnt.Accept(i)
+		err := stmnt.Accept(i)
 		if err != nil {
-			return nil, err
+			return err
 		}
-
 	}
 
-	return value, err
+	return nil
 }
 
 func (i *Interpreter) VisitLiteralExpr(expr LiteralExpr) (interface{}, error) {
@@ -163,64 +159,63 @@ func (i *Interpreter) VisitAssignExpr(expr AssignExpr) (interface{}, error) {
 	return value, nil
 }
 
-func (i *Interpreter) VisitBlockStmnt(stmnt BlockStmnt) (interface{}, error) {
+func (i *Interpreter) VisitBlockStmnt(stmnt BlockStmnt) error {
 	return i.executeBlock(stmnt.stmnts, MakeEnv(i.env))
 }
 
-func (i *Interpreter) VisitExpressionStmnt(stmnt ExpressionStmnt) (interface{}, error) {
-	return i.evaluate(stmnt.expr)
+func (i *Interpreter) VisitExpressionStmnt(stmnt ExpressionStmnt) error {
+	_, err := i.evaluate(stmnt.expr)
+
+	return err
 }
 
-func (i *Interpreter) VisitPrintStmnt(stmnt PrintStmnt) (interface{}, error) {
+func (i *Interpreter) VisitPrintStmnt(stmnt PrintStmnt) error {
 	value, err := i.evaluate(stmnt.expr)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	fmt.Println(i.Stringify(value))
 
-	return nil, nil
+	return nil
 }
 
-func (i *Interpreter) VisitVarStmnt(stmnt VarStmnt) (interface{}, error) {
+func (i *Interpreter) VisitVarStmnt(stmnt VarStmnt) error {
 	var err error
 	var value interface{}
 
 	if stmnt.initializer != nil {
 		value, err = i.evaluate(stmnt.initializer)
 		if err != nil {
-			return nil, err
+			return err
 		}
 	}
 
 	i.env.Define(stmnt.name.lexeme, value)
 
-	return nil, nil
+	return nil
 }
 
 func (i *Interpreter) evaluate(expr Expr) (interface{}, error) {
 	return expr.Accept(i)
 }
 
-func (i *Interpreter) executeBlock(stmnts []Stmnt, env *Env) (interface{}, error) {
-	var value interface{}
-	var err error
-
+func (i *Interpreter) executeBlock(stmnts []Stmnt, env *Env) error {
 	previous := i.env
 
 	i.env = env
 
 	for _, stmnt := range stmnts {
-		value, err = stmnt.Accept(i)
+		err := stmnt.Accept(i)
 		if err != nil {
 			i.env = previous
-			return nil, err
+			return err
 		}
 	}
 
 	i.env = previous
 
-	return value, nil
+	return nil
 }
 
 func (i *Interpreter) isTruthy(value interface{}) bool {

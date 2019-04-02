@@ -73,7 +73,7 @@ func (l *Lang) run(source string) {
 		return
 	}
 
-	_, err = l.interpreter.Interpret(stmnts)
+	err = l.interpreter.Interpret(stmnts)
 	if err != nil {
 		fmt.Println(err)
 		return
