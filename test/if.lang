@@ -1,0 +1,17 @@
+var a = 2;
+var b = 1;
+
+if a > b {
+    print "a > b";
+} else {
+    print "a <= b";
+}
+
+var c = 3;
+var d = 4;
+
+if c > d {
+    print "c > d";
+} else {
+    print "c <= d";
+}

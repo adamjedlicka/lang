@@ -65,10 +65,13 @@ func (p *Parser) varDeclaration() (Stmnt, error) {
 }
 
 // statement → expressionStatement
+//           | ifStatement
 //           | printStatement
 //           | block ;
 func (p *Parser) statement() (Stmnt, error) {
-	if p.match(Print) {
+	if p.match(If) {
+		return p.ifStatement()
+	} else if p.match(Print) {
 		return p.printStatement()
 	} else if p.match(LeftBrace) {
 		return p.block()
@@ -90,6 +93,39 @@ func (p *Parser) expressionStatement() (Stmnt, error) {
 	}
 
 	return MakeExpressionStmnt(expr), nil
+}
+
+// ifStatement → "if" expression "{" block "}" ( "else" block )? ;
+func (p *Parser) ifStatement() (Stmnt, error) {
+	condition, err := p.expression()
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = p.consume(LeftBrace, "Expect '{' after if condition.")
+	if err != nil {
+		return nil, err
+	}
+
+	thenBranch, err := p.block()
+	if err != nil {
+		return nil, err
+	}
+
+	var elseBranch Stmnt
+	if p.match(Else) {
+		_, err = p.consume(LeftBrace, "Expect '{' after 'else'.")
+		if err != nil {
+			return nil, err
+		}
+
+		elseBranch, err = p.block()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return MakeIfStmnt(condition, thenBranch, elseBranch), nil
 }
 
 // printStatement → "print" expression ";" ;

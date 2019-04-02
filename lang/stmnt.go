@@ -7,6 +7,7 @@ type Stmnt interface {
 type StmntVisitor interface {
 	VisitBlockStmnt(BlockStmnt) error
 	VisitExpressionStmnt(ExpressionStmnt) error
+	VisitIfStmnt(IfStmnt) error
 	VisitPrintStmnt(PrintStmnt) error
 	VisitVarStmnt(VarStmnt) error
 }
@@ -37,6 +38,24 @@ func MakeExpressionStmnt(expr Expr) ExpressionStmnt {
 
 func (s ExpressionStmnt) Accept(visitor StmntVisitor) error {
 	return visitor.VisitExpressionStmnt(s)
+}
+
+type IfStmnt struct {
+	condition  Expr
+	thenBranch Stmnt
+	elseBranch Stmnt
+}
+
+func MakeIfStmnt(condition Expr, thenBranch, elseBranch Stmnt) IfStmnt {
+	return IfStmnt{
+		condition:  condition,
+		thenBranch: thenBranch,
+		elseBranch: elseBranch,
+	}
+}
+
+func (s IfStmnt) Accept(visitor StmntVisitor) error {
+	return visitor.VisitIfStmnt(s)
 }
 
 type PrintStmnt struct {

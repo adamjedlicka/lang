@@ -169,6 +169,27 @@ func (i *Interpreter) VisitExpressionStmnt(stmnt ExpressionStmnt) error {
 	return err
 }
 
+func (i *Interpreter) VisitIfStmnt(stmnt IfStmnt) error {
+	condition, err := i.evaluate(stmnt.condition)
+	if err != nil {
+		return err
+	}
+
+	if i.isTruthy(condition) {
+		err = stmnt.thenBranch.Accept(i)
+		if err != nil {
+			return err
+		}
+	} else {
+		err = stmnt.elseBranch.Accept(i)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (i *Interpreter) VisitPrintStmnt(stmnt PrintStmnt) error {
 	value, err := i.evaluate(stmnt.expr)
 	if err != nil {
