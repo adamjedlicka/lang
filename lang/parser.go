@@ -193,9 +193,9 @@ func (p *Parser) expression() (Expr, error) {
 }
 
 // assignment → IDENTIFIER "=" assignment
-//            | equality ;
+//            | or ;
 func (p *Parser) assignment() (Expr, error) {
-	expr, err := p.equality()
+	expr, err := p.or()
 	if err != nil {
 		return nil, err
 	}
@@ -214,6 +214,46 @@ func (p *Parser) assignment() (Expr, error) {
 		}
 
 		return nil, NewRuntimeError(equals.line, "Invalid assignment target.")
+	}
+
+	return expr, nil
+}
+
+// logic_or → and ( "or" and )* ;
+func (p *Parser) or() (Expr, error) {
+	expr, err := p.and()
+	if err != nil {
+		return nil, err
+	}
+
+	if p.match(Or) {
+		operator := p.previous()
+		right, err := p.and()
+		if err != nil {
+			return nil, err
+		}
+
+		expr = MakeLogicalExpr(operator, expr, right)
+	}
+
+	return expr, nil
+}
+
+// logic_and → equality ( "and" equality )* ;
+func (p *Parser) and() (Expr, error) {
+	expr, err := p.equality()
+	if err != nil {
+		return nil, err
+	}
+
+	if p.match(And) {
+		operator := p.previous()
+		right, err := p.equality()
+		if err != nil {
+			return nil, err
+		}
+
+		expr = MakeLogicalExpr(operator, expr, right)
 	}
 
 	return expr, nil

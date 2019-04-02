@@ -120,6 +120,25 @@ func (i *Interpreter) VisitBinaryExpr(expr BinaryExpr) (interface{}, error) {
 	return nil, NewRuntimeError(expr.operator.line, "Error while evaluating binary operand.")
 }
 
+func (i *Interpreter) VisitLogicalExpr(expr LogicalExpr) (interface{}, error) {
+	left, err := i.evaluate(expr.left)
+	if err != nil {
+		return nil, err
+	}
+
+	if expr.operator.tokenType == Or {
+		if i.isTruthy(left) {
+			return left, nil
+		}
+	} else {
+		if !i.isTruthy(left) {
+			return left, nil
+		}
+	}
+
+	return i.evaluate(expr.right)
+}
+
 func (i *Interpreter) VisitUnaryExpr(expr UnaryExpr) (interface{}, error) {
 	right, err := i.evaluate(expr.right)
 	if err != nil {

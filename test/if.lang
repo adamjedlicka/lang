@@ -15,3 +15,8 @@ if c > d {
 } else {
     print "c <= d";
 }
+
+print "hi" or 2; // hi
+print null or "yes"; // yes
+print "hi" and 2; // 2
+print null and "yes"; // null
