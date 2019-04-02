@@ -2,6 +2,7 @@ package lang
 
 import (
 	"fmt"
+	"strconv"
 )
 
 type Interpreter struct {
@@ -294,8 +295,11 @@ func (i *Interpreter) isEqual(left, right interface{}) bool {
 }
 
 func (i *Interpreter) Stringify(value interface{}) string {
-	if value == nil {
+	switch value := value.(type) {
+	case nil:
 		return "null"
+	case float64:
+		return strconv.FormatFloat(value, 'f', -1, 64)
 	}
 
 	return fmt.Sprintf("%v", value)
