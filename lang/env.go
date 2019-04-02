@@ -17,8 +17,15 @@ func MakeEnv(enclosing *Env) *Env {
 	return env
 }
 
-func (env *Env) Define(name string, value interface{}) {
-	env.values[name] = value
+func (env *Env) Define(name Token, value interface{}) error {
+	if _, ok := env.values[name.lexeme]; !ok {
+		env.values[name.lexeme] = value
+		return nil
+	}
+
+	return NewRuntimeError(
+		name.line,
+		fmt.Sprintf("Variable '%s' already defined.", name.lexeme))
 }
 
 func (env *Env) Assign(name Token, value interface{}) error {
@@ -26,6 +33,10 @@ func (env *Env) Assign(name Token, value interface{}) error {
 		env.values[name.lexeme] = value
 
 		return nil
+	}
+
+	if env.enclosing != nil {
+		return env.enclosing.Assign(name, value)
 	}
 
 	return NewRuntimeError(

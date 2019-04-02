@@ -10,6 +10,7 @@ type StmntVisitor interface {
 	VisitIfStmnt(IfStmnt) error
 	VisitPrintStmnt(PrintStmnt) error
 	VisitVarStmnt(VarStmnt) error
+	VisitWhileStmnt(WhileStmnt) error
 }
 
 type BlockStmnt struct {
@@ -86,4 +87,20 @@ func MakeVarStmnt(name Token, initializer Expr) VarStmnt {
 
 func (s VarStmnt) Accept(visitor StmntVisitor) error {
 	return visitor.VisitVarStmnt(s)
+}
+
+type WhileStmnt struct {
+	condition Expr
+	body      Stmnt
+}
+
+func MakeWhileStmnt(condition Expr, body Stmnt) WhileStmnt {
+	return WhileStmnt{
+		condition: condition,
+		body:      body,
+	}
+}
+
+func (s WhileStmnt) Accept(visitor StmntVisitor) error {
+	return visitor.VisitWhileStmnt(s)
 }

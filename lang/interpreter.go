@@ -212,9 +212,25 @@ func (i *Interpreter) VisitVarStmnt(stmnt VarStmnt) error {
 		}
 	}
 
-	i.env.Define(stmnt.name.lexeme, value)
+	return i.env.Define(stmnt.name, value)
+}
 
-	return nil
+func (i *Interpreter) VisitWhileStmnt(stmnt WhileStmnt) error {
+	for {
+		condition, err := i.evaluate(stmnt.condition)
+		if err != nil {
+			return err
+		}
+
+		if !i.isTruthy(condition) {
+			return nil
+		}
+
+		err = stmnt.body.Accept(i)
+		if err != nil {
+			return err
+		}
+	}
 }
 
 func (i *Interpreter) evaluate(expr Expr) (interface{}, error) {
