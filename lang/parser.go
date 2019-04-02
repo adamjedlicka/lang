@@ -66,12 +66,15 @@ func (p *Parser) varDeclaration() (Stmnt, error) {
 
 // statement → expressionStatement
 //           | ifStatement
+//           | forStatement
 //           | whileStatement
 //           | printStatement
 //           | block ;
 func (p *Parser) statement() (Stmnt, error) {
 	if p.match(If) {
 		return p.ifStatement()
+	} else if p.match(For) {
+		return p.forStatement()
 	} else if p.match(While) {
 		return p.whileStatement()
 	} else if p.match(Print) {
@@ -129,6 +132,76 @@ func (p *Parser) ifStatement() (Stmnt, error) {
 	}
 
 	return MakeIfStmnt(condition, thenBranch, elseBranch), nil
+}
+
+// forStmt → "for" ( varDeclaration | expressionStatement | ";" )
+//                 expression? ";"
+//                 expression? ")" block ;
+func (p *Parser) forStatement() (Stmnt, error) {
+	var err error
+	var initializer Stmnt
+	var condition Expr
+	var increment Expr
+
+	// initializer
+	if p.match(Semicolon) {
+		initializer = nil
+	} else if p.match(Var) {
+		initializer, err = p.varDeclaration()
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		initializer, err = p.expressionStatement()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// condition
+	if !p.check(Semicolon) {
+		condition, err = p.expression()
+		if err != nil {
+			return nil, err
+		}
+	}
+	_, err = p.consume(Semicolon, "Expect ';' after loop condition;")
+	if err != nil {
+		return nil, err
+	}
+
+	// increment
+	if !p.check(LeftBrace) {
+		increment, err = p.expression()
+		if err != nil {
+			return nil, err
+		}
+	}
+	_, err = p.consume(LeftBrace, "Expect '{' after for clause.")
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := p.block()
+	if err != nil {
+		return nil, err
+	}
+
+	if increment != nil {
+		body = MakeBlockStmnt([]Stmnt{body, MakeExpressionStmnt(increment)})
+	}
+
+	if condition == nil {
+		condition = MakeLiteralExpr(true)
+	}
+
+	body = MakeWhileStmnt(condition, body)
+
+	if initializer != nil {
+		body = MakeBlockStmnt([]Stmnt{initializer, body})
+	}
+
+	return body, nil
 }
 
 // whileStatement → "if" expression block ;
