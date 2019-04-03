@@ -227,7 +227,7 @@ func (i *Interpreter) VisitExpressionStmnt(stmnt ExpressionStmnt) error {
 }
 
 func (i *Interpreter) VisitFnStmnt(stmnt FnStmnt) error {
-	function := MakeFunction(stmnt)
+	function := MakeFunction(stmnt, i.env)
 
 	return i.env.Define(stmnt.name, function)
 }

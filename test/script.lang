@@ -11,5 +11,5 @@ fn makeCounter() {
 }
 
 var counter = makeCounter();
-counter();
-counter();
+print counter();
+print counter();

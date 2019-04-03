@@ -2,16 +2,18 @@ package lang
 
 type Function struct {
 	declaration FnStmnt
+	closure     *Env
 }
 
-func MakeFunction(declaration FnStmnt) Function {
+func MakeFunction(declaration FnStmnt, closure *Env) Function {
 	return Function{
 		declaration: declaration,
+		closure:     closure,
 	}
 }
 
 func (f Function) Call(i *Interpreter, arguments []interface{}) (interface{}, error) {
-	env := MakeEnv(i.globals)
+	env := MakeEnv(f.closure)
 
 	for i, argument := range arguments {
 		err := env.Define(f.declaration.params[i], argument)
