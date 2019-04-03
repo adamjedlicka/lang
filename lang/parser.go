@@ -29,16 +29,65 @@ func (p *Parser) Parse(tokens []Token) ([]Stmnt, error) {
 	return stmnts, nil
 }
 
-// declaration → varDeclaration
+// declaration → fnDeclaration
+//             | varDeclaration
 //             | statement ;
 func (p *Parser) declaration() (Stmnt, error) {
-	if p.match(Var) {
+	if p.match(Func) {
+		return p.function("function")
+	} else if p.match(Var) {
 		return p.varDeclaration()
 	}
 
 	return p.statement()
 
 	// TODO : Synchronization
+}
+
+// function → IDENTIFIER "(" parameters? ")" block ;
+func (p *Parser) function(kind string) (Stmnt, error) {
+	name, err := p.consume(Identifier, "Expect "+kind+" name.")
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = p.consume(LeftParen, "Expect '(' after "+kind+" name.")
+	if err != nil {
+		return nil, err
+	}
+
+	parameters := make([]Token, 0)
+	if !p.check(RightParen) {
+		for {
+			parameter, err := p.consume(Identifier, "Exptect parameter name.")
+			if err != nil {
+				return nil, err
+			}
+
+			parameters = append(parameters, parameter)
+
+			if !p.match(Comma) {
+				break
+			}
+		}
+	}
+
+	_, err = p.consume(RightParen, "Expect ')' after parameters.")
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = p.consume(LeftBrace, "Expect '{' before "+kind+" body.")
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := p.block()
+	if err != nil {
+		return nil, err
+	}
+
+	return MakeFnStmnt(name, parameters, body), nil
 }
 
 // varDeclaration → "var" IDENTIFIER ( "=" expression )? ";" ;

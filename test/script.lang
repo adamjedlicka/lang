@@ -1,5 +1,14 @@
-var start = time();
 
-for var i = 0; i < 10000000; i = i + 1 {}
+fn hello() {
+    print "Hello, World";
+}
 
-print time() - start;
+fn greet(first, last) {
+    print "Hello, " + first + " " + last + "!";
+}
+
+hello();
+greet("Adam", "Jedlička");
+
+print greet;
+print time;

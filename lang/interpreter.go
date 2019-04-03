@@ -133,7 +133,7 @@ func (i *Interpreter) VisitCallExpr(expr CallExpr) (interface{}, error) {
 		return nil, err
 	}
 
-	arguments := make([]interface{}, len(expr.arguments))
+	arguments := make([]interface{}, 0)
 	for _, expr := range expr.arguments {
 		argument, err := i.evaluate(expr)
 		if err != nil {
@@ -150,7 +150,7 @@ func (i *Interpreter) VisitCallExpr(expr CallExpr) (interface{}, error) {
 
 	if function.Arity() != len(arguments) {
 		return nil, NewRuntimeError(expr.paren.line,
-			fmt.Sprintf("Expteced %d arguments but got %d.", function.Arity(), len(arguments)))
+			fmt.Sprintf("Expected %d arguments but got %d.", function.Arity(), len(arguments)))
 	}
 
 	return function.Call(i, arguments)
@@ -222,6 +222,12 @@ func (i *Interpreter) VisitExpressionStmnt(stmnt ExpressionStmnt) error {
 	_, err := i.evaluate(stmnt.expr)
 
 	return err
+}
+
+func (i *Interpreter) VisitFnStmnt(stmnt FnStmnt) error {
+	function := MakeFunction(stmnt)
+
+	return i.env.Define(stmnt.name, function)
 }
 
 func (i *Interpreter) VisitIfStmnt(stmnt IfStmnt) error {

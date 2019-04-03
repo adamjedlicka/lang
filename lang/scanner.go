@@ -10,7 +10,7 @@ var keywords = map[string]TokenType{
 	"else":   Else,
 	"false":  False,
 	"for":    For,
-	"func":   Func,
+	"fn":     Func,
 	"if":     If,
 	"null":   Null,
 	"or":     Or,
