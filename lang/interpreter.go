@@ -6,13 +6,19 @@ import (
 )
 
 type Interpreter struct {
-	env    *Env
-	stmnts []Stmnt
+	globals *Env
+	env     *Env
+	stmnts  []Stmnt
 }
 
 func MakeInterpreter() Interpreter {
+	env := MakeEnv(nil)
+
+	env.values["time"] = Time{}
+
 	return Interpreter{
-		env: MakeEnv(nil),
+		globals: env,
+		env:     env,
 	}
 }
 
@@ -119,6 +125,35 @@ func (i *Interpreter) VisitBinaryExpr(expr BinaryExpr) (interface{}, error) {
 	}
 
 	return nil, NewRuntimeError(expr.operator.line, "Error while evaluating binary operand.")
+}
+
+func (i *Interpreter) VisitCallExpr(expr CallExpr) (interface{}, error) {
+	callee, err := i.evaluate(expr.callee)
+	if err != nil {
+		return nil, err
+	}
+
+	arguments := make([]interface{}, len(expr.arguments))
+	for _, expr := range expr.arguments {
+		argument, err := i.evaluate(expr)
+		if err != nil {
+			return nil, err
+		}
+
+		arguments = append(arguments, argument)
+	}
+
+	function, ok := callee.(Callable)
+	if !ok {
+		return nil, NewRuntimeError(expr.paren.line, "Can only call functions and classes.")
+	}
+
+	if function.Arity() != len(arguments) {
+		return nil, NewRuntimeError(expr.paren.line,
+			fmt.Sprintf("Expteced %d arguments but got %d.", function.Arity(), len(arguments)))
+	}
+
+	return function.Call(i, arguments)
 }
 
 func (i *Interpreter) VisitLogicalExpr(expr LogicalExpr) (interface{}, error) {

@@ -413,7 +413,7 @@ func (p *Parser) multiplication() (Expr, error) {
 }
 
 // unary → ( "!" | "-" ) unary
-//       | primary ;
+//       | call ;
 func (p *Parser) unary() (Expr, error) {
 	if p.match(Bang, Minus) {
 		operator := p.previous()
@@ -425,7 +425,54 @@ func (p *Parser) unary() (Expr, error) {
 		return MakeUnaryExpr(operator, right), nil
 	}
 
-	return p.primary()
+	return p.call()
+}
+
+// call → primary ( "(" arguments? ")" )* ;
+func (p *Parser) call() (Expr, error) {
+	expr, err := p.primary()
+	if err != nil {
+		return nil, err
+	}
+
+	for {
+		if p.match(LeftParen) {
+			expr, err = p.finishCall(expr)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			break
+		}
+	}
+
+	return expr, nil
+}
+
+func (p *Parser) finishCall(callee Expr) (Expr, error) {
+	arguments := make([]Expr, 0)
+
+	if !p.check(RightParen) {
+		for {
+			expr, err := p.expression()
+			if err != nil {
+				return nil, err
+			}
+
+			arguments = append(arguments, expr)
+
+			if !p.match(Comma) {
+				break
+			}
+		}
+	}
+
+	paren, err := p.consume(RightParen, "Expect ')' after arguments.")
+	if err != nil {
+		return nil, err
+	}
+
+	return MakeCallExpr(callee, paren, arguments), nil
 }
 
 // primary → "false" | "true" | "null"
