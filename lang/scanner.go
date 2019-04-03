@@ -55,7 +55,7 @@ func (s *Scanner) ScanTokens(source string) ([]Token, error) {
 		}
 	}
 
-	s.tokens = append(s.tokens, MakeToken(EOF, "", nil, s.line))
+	s.tokens = append(s.tokens, MakeToken(EOF, "", nil, s.line, 0))
 
 	return s.tokens, nil
 }
@@ -139,8 +139,16 @@ func (s *Scanner) scanToken() error {
 }
 
 func (s *Scanner) addToken(tokenType TokenType, literal interface{}) {
+	column := s.current
+
+	for i := s.current - 1; i >= 0; i-- {
+		if s.source[i] == '\n' {
+			column = s.current - i - 1
+		}
+	}
+
 	text := s.source[s.start:s.current]
-	s.tokens = append(s.tokens, MakeToken(tokenType, text, literal, s.line))
+	s.tokens = append(s.tokens, MakeToken(tokenType, text, literal, s.line, column))
 }
 
 func (s *Scanner) advance() rune {
