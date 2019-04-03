@@ -9,16 +9,18 @@ type Token struct {
 	tokenType TokenType
 	lexeme    string
 	literal   interface{}
+	index     int
 	line      int
 	column    int
 }
 
 // MakeToken creates new token
-func MakeToken(tokenType TokenType, lexeme string, literal interface{}, line, column int) Token {
+func MakeToken(tokenType TokenType, lexeme string, literal interface{}, index, line, column int) Token {
 	t := Token{}
 	t.tokenType = tokenType
 	t.lexeme = lexeme
 	t.literal = literal
+	t.index = index
 	t.line = line
 	t.column = column
 

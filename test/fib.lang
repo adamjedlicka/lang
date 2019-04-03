@@ -9,10 +9,8 @@ fn fibonacci(n) {
 }
 
 fn times(n, f) {
-    var i = 0;
-    while i < n {
+    for var i = 0; i < n; i = i + 1 {
         f(i);
-        i = i + 1;
     }
 }
 
@@ -21,4 +19,4 @@ times(20, fn (i) {
 });
 
 print "";
-print "Time in ms: " + (time() - start);
+print "Time in ms: " + (time() - start) / 1000;

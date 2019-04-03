@@ -55,7 +55,7 @@ func (s *Scanner) ScanTokens(source string) ([]Token, error) {
 		}
 	}
 
-	s.tokens = append(s.tokens, MakeToken(EOF, "", nil, s.line, 0))
+	s.tokens = append(s.tokens, MakeToken(EOF, "", nil, s.current, s.line, 0))
 
 	return s.tokens, nil
 }
@@ -148,7 +148,7 @@ func (s *Scanner) addToken(tokenType TokenType, literal interface{}) {
 	}
 
 	text := s.source[s.start:s.current]
-	s.tokens = append(s.tokens, MakeToken(tokenType, text, literal, s.line, column))
+	s.tokens = append(s.tokens, MakeToken(tokenType, text, literal, s.current, s.line, column))
 }
 
 func (s *Scanner) advance() rune {
