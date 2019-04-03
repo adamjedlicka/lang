@@ -8,9 +8,15 @@ fn fibonacci(n) {
     return fibonacci(n - 2) + fibonacci(n - 1);
 }
 
-for var i = 0; i < 20; i = i + 1 {
-    print fibonacci(i);
+fn times(n, f) {
+    for var i = 0; i < n; i = i + 1 {
+        f(i);
+    }
 }
+
+times(20, fn (i) {
+    print fibonacci(i);
+});
 
 print "";
 print "Time in ms: " + (time() - start);

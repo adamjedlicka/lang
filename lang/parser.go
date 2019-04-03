@@ -334,9 +334,55 @@ func (p *Parser) block() (Stmnt, error) {
 	return MakeBlockStmnt(stmnts), nil
 }
 
-// expression → assignment ;
+// expression → "fn" lambda
+//            | assignment ;
 func (p *Parser) expression() (Expr, error) {
+	if p.match(Func) {
+		return p.lambda()
+	}
+
 	return p.assignment()
+}
+
+// lambda → "fn" "(" parameters? ")" block ;
+func (p *Parser) lambda() (Expr, error) {
+	_, err := p.consume(LeftParen, "Expect '(' after 'fn'.")
+	if err != nil {
+		return nil, err
+	}
+
+	parameters := make([]Token, 0)
+	if !p.check(RightParen) {
+		for {
+			parameter, err := p.consume(Identifier, "Exptect parameter name.")
+			if err != nil {
+				return nil, err
+			}
+
+			parameters = append(parameters, parameter)
+
+			if !p.match(Comma) {
+				break
+			}
+		}
+	}
+
+	_, err = p.consume(RightParen, "Expect ')' after parameters.")
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = p.consume(LeftBrace, "Expect '{' before lambda body.")
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := p.block()
+	if err != nil {
+		return nil, err
+	}
+
+	return MakeLambdaExpr(parameters, body), nil
 }
 
 // assignment → IDENTIFIER "=" assignment

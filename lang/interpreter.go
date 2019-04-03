@@ -216,6 +216,10 @@ func (i *Interpreter) VisitAssignExpr(expr AssignExpr) (interface{}, error) {
 	return value, nil
 }
 
+func (i *Interpreter) VisitLambdaExpr(expr LambdaExpr) (interface{}, error) {
+	return MakeLambda(expr, i.env), nil
+}
+
 func (i *Interpreter) VisitBlockStmnt(stmnt BlockStmnt) error {
 	return i.executeBlock(stmnt.stmnts, MakeEnv(i.env))
 }

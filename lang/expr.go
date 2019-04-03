@@ -9,6 +9,7 @@ type ExprVisitor interface {
 	VisitBinaryExpr(BinaryExpr) (interface{}, error)
 	VisitCallExpr(CallExpr) (interface{}, error)
 	VisitGroupingExpr(GroupingExpr) (interface{}, error)
+	VisitLambdaExpr(LambdaExpr) (interface{}, error)
 	VisitLiteralExpr(LiteralExpr) (interface{}, error)
 	VisitLogicalExpr(LogicalExpr) (interface{}, error)
 	VisitUnaryExpr(UnaryExpr) (interface{}, error)
@@ -79,6 +80,22 @@ func MakeGroupingExpr(expression Expr) GroupingExpr {
 
 func (e GroupingExpr) Accept(visitor ExprVisitor) (interface{}, error) {
 	return visitor.VisitGroupingExpr(e)
+}
+
+type LambdaExpr struct {
+	params []Token
+	body   Stmnt
+}
+
+func MakeLambdaExpr(params []Token, body Stmnt) LambdaExpr {
+	return LambdaExpr{
+		params: params,
+		body:   body,
+	}
+}
+
+func (e LambdaExpr) Accept(visitor ExprVisitor) (interface{}, error) {
+	return visitor.VisitLambdaExpr(e)
 }
 
 type LiteralExpr struct {
