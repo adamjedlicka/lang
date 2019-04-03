@@ -82,10 +82,12 @@ func (p *Parser) function(kind string) (Stmnt, error) {
 		return nil, err
 	}
 
-	body, err := p.block()
+	block, err := p.block()
 	if err != nil {
 		return nil, err
 	}
+
+	body := (block.(BlockStmnt)).stmnts
 
 	return MakeFnStmnt(name, parameters, body), nil
 }
@@ -234,26 +236,28 @@ func (p *Parser) forStatement() (Stmnt, error) {
 		return nil, err
 	}
 
-	body, err := p.block()
+	block, err := p.block()
 	if err != nil {
 		return nil, err
 	}
 
+	stmnts := (block.(BlockStmnt)).stmnts
+
 	if increment != nil {
-		body = MakeBlockStmnt([]Stmnt{body, MakeExpressionStmnt(increment)})
+		stmnts = append(stmnts, MakeExpressionStmnt(increment))
 	}
 
 	if condition == nil {
 		condition = MakeLiteralExpr(true)
 	}
 
-	body = MakeWhileStmnt(condition, body)
+	while := MakeWhileStmnt(condition, MakeBlockStmnt(stmnts))
 
 	if initializer != nil {
-		body = MakeBlockStmnt([]Stmnt{initializer, body})
+		return MakeBlockStmnt([]Stmnt{initializer, while}), nil
 	}
 
-	return body, nil
+	return while, nil
 }
 
 // returnStatement → "return" expression? ";" ;
@@ -377,10 +381,12 @@ func (p *Parser) lambda() (Expr, error) {
 		return nil, err
 	}
 
-	body, err := p.block()
+	block, err := p.block()
 	if err != nil {
 		return nil, err
 	}
+
+	body := (block.(BlockStmnt)).stmnts
 
 	return MakeLambdaExpr(parameters, body), nil
 }

@@ -84,10 +84,10 @@ func (e GroupingExpr) Accept(visitor ExprVisitor) (interface{}, error) {
 
 type LambdaExpr struct {
 	params []Token
-	body   Stmnt
+	body   []Stmnt
 }
 
-func MakeLambdaExpr(params []Token, body Stmnt) LambdaExpr {
+func MakeLambdaExpr(params []Token, body []Stmnt) LambdaExpr {
 	return LambdaExpr{
 		params: params,
 		body:   body,

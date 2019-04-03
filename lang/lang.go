@@ -11,6 +11,7 @@ import (
 type Lang struct {
 	scanner     Scanner
 	parser      Parser
+	resolver    Resolver
 	interpreter Interpreter
 
 	hadError bool
@@ -18,15 +19,16 @@ type Lang struct {
 
 // MakeLang creates new instance of the language struct
 func MakeLang() Lang {
-	l := Lang{
+	interpreter := MakeInterpreter()
+
+	return Lang{
 		scanner:     MakeScanner(),
 		parser:      MakeParser(),
-		interpreter: MakeInterpreter(),
+		resolver:    MakeResolver(&interpreter),
+		interpreter: interpreter,
+
+		hadError: false,
 	}
-
-	l.hadError = false
-
-	return l
 }
 
 // RunFile executes source code from the file on path
@@ -68,6 +70,12 @@ func (l *Lang) run(source string) {
 	}
 
 	stmnts, err := l.parser.Parse(tokens)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	err = l.resolver.Resolve(stmnts)
 	if err != nil {
 		fmt.Println(err)
 		return

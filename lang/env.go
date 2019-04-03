@@ -41,7 +41,19 @@ func (env *Env) Assign(name Token, value interface{}) error {
 
 	return NewRuntimeError(
 		name.line,
-		fmt.Sprintf("Undefined variable '%s'.", name.lexeme))
+		fmt.Sprintf("Cannot assign to undefined variable '%s'.", name.lexeme))
+}
+
+func (env *Env) AssignAt(distance int, name Token, value interface{}) error {
+	if _, ok := env.ancestor(distance).values[name.lexeme]; ok {
+		env.ancestor(distance).values[name.lexeme] = value
+
+		return nil
+	}
+
+	return NewRuntimeError(
+		name.line,
+		fmt.Sprintf("Cannot assign to undefined variable '%s'.", name.lexeme))
 }
 
 func (env *Env) Get(name Token) (interface{}, error) {
@@ -56,4 +68,24 @@ func (env *Env) Get(name Token) (interface{}, error) {
 	return nil, NewRuntimeError(
 		name.line,
 		fmt.Sprintf("Undefined variable '%s'.", name.lexeme))
+}
+
+func (env *Env) GetAt(distance int, name Token) (interface{}, error) {
+	if value, ok := env.ancestor(distance).values[name.lexeme]; ok {
+		return value, nil
+	}
+
+	return nil, NewRuntimeError(
+		name.line,
+		fmt.Sprintf("Undefined variable '%s'.", name.lexeme))
+}
+
+func (env *Env) ancestor(distance int) *Env {
+	e := env
+
+	for i := 0; i < distance; i++ {
+		e = e.enclosing
+	}
+
+	return e
 }

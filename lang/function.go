@@ -22,9 +22,7 @@ func (f Function) Call(i *Interpreter, arguments []interface{}) (interface{}, er
 		}
 	}
 
-	block := f.declaration.body.(BlockStmnt)
-
-	err := i.executeBlock(block.stmnts, env)
+	err := i.executeBlock(f.declaration.body, env)
 	if returner, ok := err.(Returner); ok {
 		return returner.value, nil
 	}

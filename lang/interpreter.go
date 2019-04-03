@@ -9,6 +9,7 @@ type Interpreter struct {
 	globals *Env
 	env     *Env
 	stmnts  []Stmnt
+	locals  map[Expr]int
 }
 
 func MakeInterpreter() Interpreter {
@@ -19,6 +20,8 @@ func MakeInterpreter() Interpreter {
 	return Interpreter{
 		globals: env,
 		env:     env,
+		stmnts:  make([]Stmnt, 0),
+		locals:  make(map[Expr]int),
 	}
 }
 
@@ -199,7 +202,7 @@ func (i *Interpreter) VisitUnaryExpr(expr UnaryExpr) (interface{}, error) {
 }
 
 func (i *Interpreter) VisitVariableExpr(expr VariableExpr) (interface{}, error) {
-	return i.env.Get(expr.name)
+	return i.lookUpVariable(expr.name, expr)
 }
 
 func (i *Interpreter) VisitAssignExpr(expr AssignExpr) (interface{}, error) {
@@ -208,9 +211,16 @@ func (i *Interpreter) VisitAssignExpr(expr AssignExpr) (interface{}, error) {
 		return nil, err
 	}
 
-	err = i.env.Assign(expr.name, value)
-	if err != nil {
-		return nil, err
+	if distance, ok := i.locals[expr]; ok {
+		err = i.env.AssignAt(distance, expr.name, value)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		err = i.globals.Assign(expr.name, value)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return value, nil
@@ -334,6 +344,18 @@ func (i *Interpreter) executeBlock(stmnts []Stmnt, env *Env) error {
 	i.env = previous
 
 	return nil
+}
+
+func (i *Interpreter) lookUpVariable(name Token, expr Expr) (interface{}, error) {
+	if distance, ok := i.locals[expr]; ok {
+		return i.env.GetAt(distance, name)
+	}
+
+	return i.globals.Get(name)
+}
+
+func (i *Interpreter) resolve(expr Expr, depth int) {
+	i.locals[expr] = depth
 }
 
 func (i *Interpreter) isTruthy(value interface{}) bool {

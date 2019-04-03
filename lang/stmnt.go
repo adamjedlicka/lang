@@ -46,10 +46,10 @@ func (s ExpressionStmnt) Accept(visitor StmntVisitor) error {
 type FnStmnt struct {
 	name   Token
 	params []Token
-	body   Stmnt
+	body   []Stmnt
 }
 
-func MakeFnStmnt(name Token, params []Token, body Stmnt) FnStmnt {
+func MakeFnStmnt(name Token, params []Token, body []Stmnt) FnStmnt {
 	return FnStmnt{
 		name:   name,
 		params: params,
