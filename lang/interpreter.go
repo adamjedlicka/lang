@@ -87,6 +87,8 @@ func (i *Interpreter) VisitBinaryExpr(expr BinaryExpr) (interface{}, error) {
 			if right, ok := right.(string); ok {
 				return left + right, nil
 			}
+
+			return fmt.Sprintf("%s%v", left, right), nil
 		}
 
 		return nil, NewRuntimeError(expr.operator.line, "Operands must be two numbers or two strings.")
@@ -241,7 +243,7 @@ func (i *Interpreter) VisitIfStmnt(stmnt IfStmnt) error {
 		if err != nil {
 			return err
 		}
-	} else {
+	} else if stmnt.elseBranch != nil {
 		err = stmnt.elseBranch.Accept(i)
 		if err != nil {
 			return err
@@ -274,6 +276,20 @@ func (i *Interpreter) VisitVarStmnt(stmnt VarStmnt) error {
 	}
 
 	return i.env.Define(stmnt.name, value)
+}
+
+func (i *Interpreter) VisitReturnStmnt(stmnt ReturnStmnt) error {
+	var err error
+	var value interface{}
+
+	if stmnt.value != nil {
+		value, err = i.evaluate(stmnt.value)
+		if err != nil {
+			return err
+		}
+	}
+
+	return MakeReturner(value)
 }
 
 func (i *Interpreter) VisitWhileStmnt(stmnt WhileStmnt) error {

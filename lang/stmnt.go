@@ -11,6 +11,7 @@ type StmntVisitor interface {
 	VisitIfStmnt(IfStmnt) error
 	VisitPrintStmnt(PrintStmnt) error
 	VisitVarStmnt(VarStmnt) error
+	VisitReturnStmnt(ReturnStmnt) error
 	VisitWhileStmnt(WhileStmnt) error
 }
 
@@ -106,6 +107,22 @@ func MakeVarStmnt(name Token, initializer Expr) VarStmnt {
 
 func (s VarStmnt) Accept(visitor StmntVisitor) error {
 	return visitor.VisitVarStmnt(s)
+}
+
+type ReturnStmnt struct {
+	keyword Token
+	value   Expr
+}
+
+func MakeReturnStmnt(keyword Token, value Expr) ReturnStmnt {
+	return ReturnStmnt{
+		keyword: keyword,
+		value:   value,
+	}
+}
+
+func (s ReturnStmnt) Accept(visitor StmntVisitor) error {
+	return visitor.VisitReturnStmnt(s)
 }
 
 type WhileStmnt struct {

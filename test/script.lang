@@ -1,14 +1,15 @@
+fn makeCounter() {
+    var i = 0;
 
-fn hello() {
-    print "Hello, World";
+    fn count() {
+        i = i + 1;
+
+        return i;
+    }
+
+    return count;
 }
 
-fn greet(first, last) {
-    print "Hello, " + first + " " + last + "!";
-}
-
-hello();
-greet("Adam", "Jedlička");
-
-print greet;
-print time;
+var counter = makeCounter();
+counter();
+counter();

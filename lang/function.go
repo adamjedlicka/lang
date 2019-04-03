@@ -14,12 +14,20 @@ func (f Function) Call(i *Interpreter, arguments []interface{}) (interface{}, er
 	env := MakeEnv(i.globals)
 
 	for i, argument := range arguments {
-		env.Define(f.declaration.params[i], argument)
+		err := env.Define(f.declaration.params[i], argument)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	block := f.declaration.body.(BlockStmnt)
 
-	return nil, i.executeBlock(block.stmnts, env)
+	err := i.executeBlock(block.stmnts, env)
+	if returner, ok := err.(Returner); ok {
+		return returner.value, nil
+	}
+
+	return nil, err
 }
 
 func (f Function) Arity() int {

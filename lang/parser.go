@@ -116,6 +116,7 @@ func (p *Parser) varDeclaration() (Stmnt, error) {
 // statement → expressionStatement
 //           | ifStatement
 //           | forStatement
+//           | returnStatement
 //           | whileStatement
 //           | printStatement
 //           | block ;
@@ -124,6 +125,8 @@ func (p *Parser) statement() (Stmnt, error) {
 		return p.ifStatement()
 	} else if p.match(For) {
 		return p.forStatement()
+	} else if p.match(Return) {
+		return p.returnStatement()
 	} else if p.match(While) {
 		return p.whileStatement()
 	} else if p.match(Print) {
@@ -251,6 +254,28 @@ func (p *Parser) forStatement() (Stmnt, error) {
 	}
 
 	return body, nil
+}
+
+// returnStatement → "return" expression? ";" ;
+func (p *Parser) returnStatement() (Stmnt, error) {
+	var err error
+	var value Expr
+
+	keyword := p.previous()
+
+	if !p.check(Semicolon) {
+		value, err = p.expression()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	_, err = p.consume(Semicolon, "Expect ';' after return value.")
+	if err != nil {
+		return nil, err
+	}
+
+	return MakeReturnStmnt(keyword, value), nil
 }
 
 // whileStatement → "if" expression block ;
