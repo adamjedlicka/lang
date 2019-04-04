@@ -161,6 +161,19 @@ func (i *Interpreter) VisitCallExpr(expr CallExpr) (interface{}, error) {
 	return function.Call(i, arguments)
 }
 
+func (i *Interpreter) VisitGetExpr(expr GetExpr) (interface{}, error) {
+	object, err := i.evaluate(expr.object)
+	if err != nil {
+		return nil, err
+	}
+
+	if object, ok := object.(*BluInstance); ok {
+		return object.get(expr.name)
+	}
+
+	return nil, NewRuntimeError(expr.name.line, "Only instances have properties.")
+}
+
 func (i *Interpreter) VisitLogicalExpr(expr LogicalExpr) (interface{}, error) {
 	left, err := i.evaluate(expr.left)
 	if err != nil {
@@ -178,6 +191,31 @@ func (i *Interpreter) VisitLogicalExpr(expr LogicalExpr) (interface{}, error) {
 	}
 
 	return i.evaluate(expr.right)
+}
+
+func (i *Interpreter) VisitSetExpr(expr SetExpr) (interface{}, error) {
+	object, err := i.evaluate(expr.object)
+	if err != nil {
+		return nil, err
+	}
+
+	instance, ok := object.(*BluInstance)
+	if !ok {
+		return nil, NewRuntimeError(expr.name.line, "Only instances have fields.")
+	}
+
+	value, err := i.evaluate(expr.value)
+	if err != nil {
+		return nil, err
+	}
+
+	instance.set(expr.name, value)
+
+	return value, nil
+}
+
+func (i *Interpreter) VisitThisExpr(expr ThisExpr) (interface{}, error) {
+	return i.lookUpVariable(expr.keword, expr)
 }
 
 func (i *Interpreter) VisitUnaryExpr(expr UnaryExpr) (interface{}, error) {
@@ -232,6 +270,16 @@ func (i *Interpreter) VisitLambdaExpr(expr LambdaExpr) (interface{}, error) {
 
 func (i *Interpreter) VisitBlockStmnt(stmnt BlockStmnt) error {
 	return i.executeBlock(stmnt.stmnts, MakeEnv(i.env))
+}
+
+func (i *Interpreter) VisitClassStmnt(stmnt ClassStmnt) error {
+	methods := make(map[string]Function)
+
+	for _, method := range stmnt.methods {
+		methods[method.name.lexeme] = MakeFunction(method, i.env)
+	}
+
+	return i.env.Define(stmnt.name, MakeBluClass(stmnt.name.lexeme, methods))
 }
 
 func (i *Interpreter) VisitExpressionStmnt(stmnt ExpressionStmnt) error {

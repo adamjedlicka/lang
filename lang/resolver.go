@@ -5,7 +5,8 @@ type functionType uint8
 const (
 	functionNone functionType = iota
 	functionFunction
-	lambdaFunction
+	functionMethod
+	functionLambda
 )
 
 type Resolver struct {
@@ -32,6 +33,30 @@ func (r *Resolver) VisitBlockStmnt(stmnt BlockStmnt) error {
 	err := r.resolveStmnts(stmnt.stmnts)
 	if err != nil {
 		return err
+	}
+
+	r.endScope()
+
+	return nil
+}
+
+func (r *Resolver) VisitClassStmnt(stmnt ClassStmnt) error {
+	err := r.declare(stmnt.name)
+	if err != nil {
+		return err
+	}
+
+	r.define(stmnt.name)
+
+	r.beginScope()
+
+	r.scope()["this"] = true
+
+	for _, method := range stmnt.methods {
+		err := r.resolveFunction(method, functionMethod)
+		if err != nil {
+			return err
+		}
 	}
 
 	r.endScope()
@@ -167,6 +192,10 @@ func (r *Resolver) VisitCallExpr(expr CallExpr) (interface{}, error) {
 	return nil, nil
 }
 
+func (r *Resolver) VisitGetExpr(expr GetExpr) (interface{}, error) {
+	return nil, r.resolveExpr(expr.object)
+}
+
 func (r *Resolver) VisitGroupingExpr(expr GroupingExpr) (interface{}, error) {
 	return nil, r.resolveExpr(expr.expression)
 }
@@ -189,6 +218,26 @@ func (r *Resolver) VisitLogicalExpr(expr LogicalExpr) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	return nil, nil
+}
+
+func (r *Resolver) VisitSetExpr(expr SetExpr) (interface{}, error) {
+	err := r.resolveExpr(expr.value)
+	if err != nil {
+		return nil, err
+	}
+
+	err = r.resolveExpr(expr.object)
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
+}
+
+func (r *Resolver) VisitThisExpr(expr ThisExpr) (interface{}, error) {
+	r.resolveLocal(expr, expr.keword)
 
 	return nil, nil
 }
@@ -298,7 +347,7 @@ func (r *Resolver) resolveFunction(function FnStmnt, fnType functionType) error 
 
 func (r *Resolver) resolveLambda(lambda LambdaExpr) error {
 	enclosingFunction := r.currentFunction
-	r.currentFunction = lambdaFunction
+	r.currentFunction = functionLambda
 
 	r.beginScope()
 

@@ -34,6 +34,14 @@ func (f Function) Arity() int {
 	return len(f.declaration.params)
 }
 
+func (f Function) bind(instance *BluInstance) Function {
+	env := MakeEnv(f.closure)
+	token := MakeToken(This, "this", nil, -1, -1, -1)
+	_ = env.Define(token, instance)
+
+	return MakeFunction(f.declaration, env)
+}
+
 func (f Function) String() string {
 	return "<fn " + f.declaration.name.lexeme + ">"
 }

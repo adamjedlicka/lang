@@ -29,11 +29,14 @@ func (p *Parser) Parse(tokens []Token) ([]Stmnt, error) {
 	return stmnts, nil
 }
 
-// declaration → fnDeclaration
+// declaration → classDecl
+//             | fnDeclaration
 //             | varDeclaration
 //             | statement ;
 func (p *Parser) declaration() (Stmnt, error) {
-	if p.match(Func) {
+	if p.match(Class) {
+		return p.classDeclaration()
+	} else if p.match(Func) {
 		return p.function("function")
 	} else if p.match(Var) {
 		return p.varDeclaration()
@@ -42,6 +45,42 @@ func (p *Parser) declaration() (Stmnt, error) {
 	return p.statement()
 
 	// TODO : Synchronization
+}
+
+// classDeclaration → "class" IDENTIFIER "{" ( "fn" function )* "}" ;
+func (p *Parser) classDeclaration() (Stmnt, error) {
+	name, err := p.consume(Identifier, "Expect class name.")
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = p.consume(LeftBrace, "Expect '{' before class body.")
+	if err != nil {
+		return nil, err
+	}
+
+	methods := make([]FnStmnt, 0)
+
+	for !p.check(RightBrace) && !p.isAtEnd() {
+		_, err := p.consume(Func, "Exptect function declaration.")
+		if err != nil {
+			return nil, err
+		}
+
+		method, err := p.function("method")
+		if err != nil {
+			return nil, err
+		}
+
+		methods = append(methods, method.(FnStmnt))
+	}
+
+	_, err = p.consume(RightBrace, "Expect '}' after class body.")
+	if err != nil {
+		return nil, err
+	}
+
+	return MakeClassStmnt(name, methods), nil
 }
 
 // function → IDENTIFIER "(" parameters? ")" block ;
@@ -391,7 +430,7 @@ func (p *Parser) lambda() (Expr, error) {
 	return MakeLambdaExpr(parameters, body), nil
 }
 
-// assignment → IDENTIFIER "=" assignment
+// assignment → ( call "." )? IDENTIFIER "=" assignment
 //            | or ;
 func (p *Parser) assignment() (Expr, error) {
 	expr, err := p.or()
@@ -410,6 +449,10 @@ func (p *Parser) assignment() (Expr, error) {
 			name := expr.name
 
 			return MakeAssignExpr(name, value), nil
+		}
+
+		if expr, ok := expr.(GetExpr); ok {
+			return MakeSetExpr(expr.object, expr.name, value), nil
 		}
 
 		return nil, NewRuntimeError(equals.line, "Invalid assignment target.")
@@ -554,7 +597,7 @@ func (p *Parser) unary() (Expr, error) {
 	return p.call()
 }
 
-// call → primary ( "(" arguments? ")" )* ;
+// call → primary ( "(" arguments? ")" | "." IDENTIFIER )* ;
 func (p *Parser) call() (Expr, error) {
 	expr, err := p.primary()
 	if err != nil {
@@ -567,6 +610,13 @@ func (p *Parser) call() (Expr, error) {
 			if err != nil {
 				return nil, err
 			}
+		} else if p.match(Dot) {
+			name, err := p.consume(Identifier, "Expect property name after '.'.")
+			if err != nil {
+				return nil, err
+			}
+
+			expr = MakeGetExpr(expr, name)
 		} else {
 			break
 		}
@@ -626,6 +676,8 @@ func (p *Parser) primary() (Expr, error) {
 		}
 
 		return MakeGroupingExpr(expr), nil
+	} else if p.match(This) {
+		return MakeThisExpr(p.previous()), nil
 	} else if p.match(Identifier) {
 		return MakeVariableExpr(p.previous()), nil
 	}

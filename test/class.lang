@@ -1,0 +1,18 @@
+class Person {
+
+    fn init(firstName, lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+
+        return this;
+    }
+
+    fn getName() {
+        return this.firstName + " " + this.lastName;
+    }
+
+}
+
+var p = Person().init("Adam", "Jedlička");
+
+print p.getName();

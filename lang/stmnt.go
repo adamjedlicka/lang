@@ -6,6 +6,7 @@ type Stmnt interface {
 
 type StmntVisitor interface {
 	VisitBlockStmnt(BlockStmnt) error
+	VisitClassStmnt(ClassStmnt) error
 	VisitExpressionStmnt(ExpressionStmnt) error
 	VisitFnStmnt(FnStmnt) error
 	VisitIfStmnt(IfStmnt) error
@@ -27,6 +28,22 @@ func MakeBlockStmnt(stmnts []Stmnt) BlockStmnt {
 
 func (s BlockStmnt) Accept(visitor StmntVisitor) error {
 	return visitor.VisitBlockStmnt(s)
+}
+
+type ClassStmnt struct {
+	name    Token
+	methods []FnStmnt
+}
+
+func MakeClassStmnt(name Token, methods []FnStmnt) ClassStmnt {
+	return ClassStmnt{
+		name:    name,
+		methods: methods,
+	}
+}
+
+func (s ClassStmnt) Accept(visitor StmntVisitor) error {
+	return visitor.VisitClassStmnt(s)
 }
 
 type ExpressionStmnt struct {
