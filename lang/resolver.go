@@ -1,14 +1,24 @@
 package lang
 
+type functionType uint8
+
+const (
+	functionNone functionType = iota
+	functionFunction
+	lambdaFunction
+)
+
 type Resolver struct {
-	interpreter *Interpreter
-	scopes      []map[string]bool
+	interpreter     *Interpreter
+	scopes          []map[string]bool
+	currentFunction functionType
 }
 
 func MakeResolver(interpreter *Interpreter) Resolver {
 	return Resolver{
-		interpreter: interpreter,
-		scopes:      make([]map[string]bool, 0),
+		interpreter:     interpreter,
+		scopes:          make([]map[string]bool, 0),
+		currentFunction: functionNone,
 	}
 }
 
@@ -41,7 +51,7 @@ func (r *Resolver) VisitFnStmnt(stmnt FnStmnt) error {
 
 	r.define(stmnt.name)
 
-	return r.resolveFunction(stmnt)
+	return r.resolveFunction(stmnt, functionFunction)
 }
 
 func (r *Resolver) VisitIfStmnt(stmnt IfStmnt) error {
@@ -88,6 +98,10 @@ func (r *Resolver) VisitVarStmnt(stmnt VarStmnt) error {
 }
 
 func (r *Resolver) VisitReturnStmnt(stmnt ReturnStmnt) error {
+	if r.currentFunction == functionNone {
+		return NewResolverError(stmnt.keyword, "Cannot return from top-level code.")
+	}
+
 	if stmnt.value != nil {
 		err := r.resolveExpr(stmnt.value)
 		if err != nil {
@@ -255,7 +269,10 @@ func (r *Resolver) resolveLocal(expr Expr, name Token) {
 	}
 }
 
-func (r *Resolver) resolveFunction(function FnStmnt) error {
+func (r *Resolver) resolveFunction(function FnStmnt, fnType functionType) error {
+	enclosingFunction := r.currentFunction
+	r.currentFunction = fnType
+
 	r.beginScope()
 
 	for _, param := range function.params {
@@ -274,10 +291,15 @@ func (r *Resolver) resolveFunction(function FnStmnt) error {
 
 	r.endScope()
 
+	r.currentFunction = enclosingFunction
+
 	return nil
 }
 
 func (r *Resolver) resolveLambda(lambda LambdaExpr) error {
+	enclosingFunction := r.currentFunction
+	r.currentFunction = lambdaFunction
+
 	r.beginScope()
 
 	for _, param := range lambda.params {
@@ -295,6 +317,8 @@ func (r *Resolver) resolveLambda(lambda LambdaExpr) error {
 	}
 
 	r.endScope()
+
+	r.currentFunction = enclosingFunction
 
 	return nil
 }
