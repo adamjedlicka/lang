@@ -31,14 +31,16 @@ func (s BlockStmnt) Accept(visitor StmntVisitor) error {
 }
 
 type ClassStmnt struct {
-	name    Token
-	methods []FnStmnt
+	name         Token
+	declarations []VarStmnt
+	methods      []FnStmnt
 }
 
-func MakeClassStmnt(name Token, methods []FnStmnt) ClassStmnt {
+func MakeClassStmnt(name Token, declarations []VarStmnt, methods []FnStmnt) ClassStmnt {
 	return ClassStmnt{
-		name:    name,
-		methods: methods,
+		name:         name,
+		declarations: declarations,
+		methods:      methods,
 	}
 }
 

@@ -274,12 +274,17 @@ func (i *Interpreter) VisitBlockStmnt(stmnt BlockStmnt) error {
 
 func (i *Interpreter) VisitClassStmnt(stmnt ClassStmnt) error {
 	methods := make(map[string]Function)
+	declarations := make(map[string]Expr)
+
+	for _, declaration := range stmnt.declarations {
+		declarations[declaration.name.lexeme] = declaration.initializer
+	}
 
 	for _, method := range stmnt.methods {
 		methods[method.name.lexeme] = MakeFunction(method, i.env, method.name.lexeme == "init")
 	}
 
-	return i.env.Define(stmnt.name, MakeBluClass(stmnt.name.lexeme, methods))
+	return i.env.Define(stmnt.name, MakeBluClass(stmnt.name.lexeme, declarations, methods))
 }
 
 func (i *Interpreter) VisitExpressionStmnt(stmnt ExpressionStmnt) error {

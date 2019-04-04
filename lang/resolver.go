@@ -64,6 +64,13 @@ func (r *Resolver) VisitClassStmnt(stmnt ClassStmnt) error {
 
 	r.scope()["this"] = true
 
+	for _, declaration := range stmnt.declarations {
+		err := r.resolveStmnt(declaration)
+		if err != nil {
+			return err
+		}
+	}
+
 	for _, method := range stmnt.methods {
 		declaration := functionMethod
 

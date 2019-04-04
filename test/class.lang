@@ -1,11 +1,14 @@
 class Person {
 
+    var isAlive = true;
+
+    // constructor
     fn init(firstName, lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
     }
 
-    fn getName() {
+    fn getFullName() {
         return this.firstName + " " + this.lastName;
     }
 
@@ -14,9 +17,7 @@ class Person {
 var p1 = Person("Adam", "Jedlička");
 var p2 = Person("Franta", "Sádlo");
 
-print p1.getName();
-print p2.getName();
+print p1.getFullName();
+print p2.getFullName();
 
-p1.getName = p2.getName;
-
-print p1.getName();
+print p1.isAlive;

@@ -60,19 +60,36 @@ func (p *Parser) classDeclaration() (Stmnt, error) {
 	}
 
 	methods := make([]FnStmnt, 0)
+	declarations := make([]VarStmnt, 0)
 
 	for !p.check(RightBrace) && !p.isAtEnd() {
-		_, err := p.consume(Func, "Exptect function declaration.")
-		if err != nil {
-			return nil, err
-		}
+		if p.check(Var) {
+			_, err := p.consume(Var, "Expect variable declaration.")
+			if err != nil {
+				return nil, err
+			}
 
-		method, err := p.function("method")
-		if err != nil {
-			return nil, err
-		}
+			declaration, err := p.varDeclaration()
+			if err != nil {
+				return nil, err
+			}
 
-		methods = append(methods, method.(FnStmnt))
+			declarations = append(declarations, declaration.(VarStmnt))
+		} else if p.check(Func) {
+			_, err := p.consume(Func, "Expect function declaration.")
+			if err != nil {
+				return nil, err
+			}
+
+			method, err := p.function("method")
+			if err != nil {
+				return nil, err
+			}
+
+			methods = append(methods, method.(FnStmnt))
+		} else {
+			return nil, NewParserError(p.tokens[p.current], "Expect variable or function declaration.")
+		}
 	}
 
 	_, err = p.consume(RightBrace, "Expect '}' after class body.")
@@ -80,7 +97,7 @@ func (p *Parser) classDeclaration() (Stmnt, error) {
 		return nil, err
 	}
 
-	return MakeClassStmnt(name, methods), nil
+	return MakeClassStmnt(name, declarations, methods), nil
 }
 
 // function → IDENTIFIER "(" parameters? ")" block ;
