@@ -276,7 +276,7 @@ func (i *Interpreter) VisitClassStmnt(stmnt ClassStmnt) error {
 	methods := make(map[string]Function)
 
 	for _, method := range stmnt.methods {
-		methods[method.name.lexeme] = MakeFunction(method, i.env)
+		methods[method.name.lexeme] = MakeFunction(method, i.env, method.name.lexeme == "init")
 	}
 
 	return i.env.Define(stmnt.name, MakeBluClass(stmnt.name.lexeme, methods))
@@ -289,7 +289,7 @@ func (i *Interpreter) VisitExpressionStmnt(stmnt ExpressionStmnt) error {
 }
 
 func (i *Interpreter) VisitFnStmnt(stmnt FnStmnt) error {
-	function := MakeFunction(stmnt, i.env)
+	function := MakeFunction(stmnt, i.env, false)
 
 	return i.env.Define(stmnt.name, function)
 }

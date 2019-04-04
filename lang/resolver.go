@@ -1,18 +1,26 @@
 package lang
 
 type functionType uint8
+type classType uint8
 
 const (
 	functionNone functionType = iota
 	functionFunction
 	functionMethod
 	functionLambda
+	functionInit
+)
+
+const (
+	classNone classType = iota
+	classClass
 )
 
 type Resolver struct {
 	interpreter     *Interpreter
 	scopes          []map[string]bool
 	currentFunction functionType
+	currentClass    classType
 }
 
 func MakeResolver(interpreter *Interpreter) Resolver {
@@ -20,6 +28,7 @@ func MakeResolver(interpreter *Interpreter) Resolver {
 		interpreter:     interpreter,
 		scopes:          make([]map[string]bool, 0),
 		currentFunction: functionNone,
+		currentClass:    classNone,
 	}
 }
 
@@ -41,6 +50,9 @@ func (r *Resolver) VisitBlockStmnt(stmnt BlockStmnt) error {
 }
 
 func (r *Resolver) VisitClassStmnt(stmnt ClassStmnt) error {
+	enclosingClass := r.currentClass
+	r.currentClass = classClass
+
 	err := r.declare(stmnt.name)
 	if err != nil {
 		return err
@@ -53,13 +65,21 @@ func (r *Resolver) VisitClassStmnt(stmnt ClassStmnt) error {
 	r.scope()["this"] = true
 
 	for _, method := range stmnt.methods {
-		err := r.resolveFunction(method, functionMethod)
+		declaration := functionMethod
+
+		if method.name.lexeme == "init" {
+			declaration = functionInit
+		}
+
+		err := r.resolveFunction(method, declaration)
 		if err != nil {
 			return err
 		}
 	}
 
 	r.endScope()
+
+	r.currentClass = enclosingClass
 
 	return nil
 }
@@ -125,6 +145,10 @@ func (r *Resolver) VisitVarStmnt(stmnt VarStmnt) error {
 func (r *Resolver) VisitReturnStmnt(stmnt ReturnStmnt) error {
 	if r.currentFunction == functionNone {
 		return NewResolverError(stmnt.keyword, "Cannot return from top-level code.")
+	}
+
+	if stmnt.value != nil && r.currentFunction == functionInit {
+		return NewResolverError(stmnt.keyword, "Cannot return a value from an initializer.")
 	}
 
 	if stmnt.value != nil {
@@ -237,6 +261,10 @@ func (r *Resolver) VisitSetExpr(expr SetExpr) (interface{}, error) {
 }
 
 func (r *Resolver) VisitThisExpr(expr ThisExpr) (interface{}, error) {
+	if r.currentClass == classNone {
+		return nil, NewResolverError(expr.keword, "Cannot use 'this' outside of a class.")
+	}
+
 	r.resolveLocal(expr, expr.keword)
 
 	return nil, nil

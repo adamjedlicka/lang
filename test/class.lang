@@ -3,8 +3,6 @@ class Person {
     fn init(firstName, lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
-
-        return this;
     }
 
     fn getName() {
@@ -13,6 +11,12 @@ class Person {
 
 }
 
-var p = Person().init("Adam", "Jedlička");
+var p1 = Person("Adam", "Jedlička");
+var p2 = Person("Franta", "Sádlo");
 
-print p.getName();
+print p1.getName();
+print p2.getName();
+
+p1.getName = p2.getName;
+
+print p1.getName();

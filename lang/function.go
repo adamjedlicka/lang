@@ -3,12 +3,14 @@ package lang
 type Function struct {
 	declaration FnStmnt
 	closure     *Env
+	isInit      bool
 }
 
-func MakeFunction(declaration FnStmnt, closure *Env) Function {
+func MakeFunction(declaration FnStmnt, closure *Env, isInit bool) Function {
 	return Function{
 		declaration: declaration,
 		closure:     closure,
+		isInit:      isInit,
 	}
 }
 
@@ -24,10 +26,18 @@ func (f Function) Call(i *Interpreter, arguments []interface{}) (interface{}, er
 
 	err := i.executeBlock(f.declaration.body, env)
 	if returner, ok := err.(Returner); ok {
+		if f.isInit {
+			return f.closure.GetAt(0, Token{lexeme: "this"})
+		}
+
 		return returner.value, nil
 	}
 
-	return nil, err
+	if f.isInit {
+		return f.closure.GetAt(0, Token{lexeme: "this"})
+	}
+
+	return nil, nil
 }
 
 func (f Function) Arity() int {
@@ -39,7 +49,7 @@ func (f Function) bind(instance *BluInstance) Function {
 	token := MakeToken(This, "this", nil, -1, -1, -1)
 	_ = env.Define(token, instance)
 
-	return MakeFunction(f.declaration, env)
+	return MakeFunction(f.declaration, env, f.isInit)
 }
 
 func (f Function) String() string {
