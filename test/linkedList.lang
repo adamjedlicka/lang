@@ -88,28 +88,34 @@ class LinkedList {
     fn toString() {
         var str = "[";
 
-        var node = this.head;
-        for var i = 0; i < this.len; i = i + 1 {
-            str = str + node.value;
-
-            if i < this.len - 1 {
+        this.forEach(fn (i, value) {
+            if i > 0 {
                 str = str + ", ";
             }
 
-            node = node.next;
-        }
+            str = str + value;
+        });
 
         return str + "]";
+    }
+
+    fn forEach(callback) {
+        var node = this.head;
+
+        for var i = 0; i < this.len; i = i + 1 {
+            callback(i, node.value);
+
+            node = node.next;
+        }
     }
 }
 
 var ll = LinkedList();
-ll.pushBack(3);
-ll.pushBack(5);
-ll.pushFront(2);
-ll.pushBack(8);
-ll.pushFront(1);
 
-ll.set(3, "four");
+for var i = 0; i < 100000; i = i + 1 {
+    ll.pushBack(i);
+}
 
-print ll.toString();
+ll.forEach(fn (_, val) {
+    print val;
+});
