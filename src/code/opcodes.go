@@ -1,6 +1,6 @@
 package code
 
-type OpCode int
+type OpCode uint8
 
 // List of OpCodes
 const (

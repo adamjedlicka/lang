@@ -3,9 +3,8 @@ package debug
 import (
 	"fmt"
 
-	"github.com/adamjedlicka/lang/src/val"
-
 	"github.com/adamjedlicka/lang/src/code"
+	"github.com/adamjedlicka/lang/src/val"
 )
 
 func DisassembleChunk(chunk *code.Chunk, name string) {
@@ -25,7 +24,7 @@ func disassembleInstruction(chunk *code.Chunk, offset int) int {
 		fmt.Printf("%4d ", chunk.GetLine(offset))
 	}
 
-	instruction := code.OpCode(chunk.Get(offset))
+	instruction := chunk.Get(offset)
 	switch instruction {
 	case code.OpConstant:
 		return constantInstruction("OP_CONSTANT", chunk, offset)
@@ -38,7 +37,7 @@ func disassembleInstruction(chunk *code.Chunk, offset int) int {
 }
 
 func constantInstruction(name string, chunk *code.Chunk, offset int) int {
-	constant := chunk.Get(offset + 1)
+	constant := chunk.GetRaw(offset + 1)
 	fmt.Printf("%-20s %4d '", name, constant)
 	printValue(chunk.GetConstant(constant))
 	fmt.Printf("'\n")

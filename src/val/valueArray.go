@@ -11,14 +11,16 @@ func NewValueArray() *ValueArray {
 	return va
 }
 
-func (va *ValueArray) Write(value Value) {
+func (va *ValueArray) Write(value Value) uint8 {
 	va.values = append(va.values, value)
+
+	return va.Len() - 1
 }
 
-func (va *ValueArray) GetValue(offset int) Value {
+func (va *ValueArray) GetValue(offset uint8) Value {
 	return va.values[offset]
 }
 
-func (va *ValueArray) Len() int {
-	return len(va.values)
+func (va *ValueArray) Len() uint8 {
+	return uint8(len(va.values))
 }

@@ -5,40 +5,44 @@ import (
 )
 
 type Chunk struct {
-	data      []int
+	code      []uint8
 	lines     []int
 	constants *val.ValueArray
 }
 
 func NewChunk() *Chunk {
 	c := new(Chunk)
-	c.data = make([]int, 0)
+	c.code = make([]uint8, 0)
 	c.lines = make([]int, 0)
 	c.constants = val.NewValueArray()
 
 	return c
 }
 
-func (c *Chunk) AddConstant(value val.Value) int {
+func (c *Chunk) AddConstant(value val.Value) uint8 {
 	c.constants.Write(value)
 
 	return c.constants.Len() - 1
 }
 
 func (c *Chunk) Write(instruction OpCode, line int) {
-	c.WriteRaw(int(instruction), line)
+	c.WriteRaw(uint8(instruction), line)
 }
 
-func (c *Chunk) WriteRaw(data int, line int) {
-	c.data = append(c.data, data)
+func (c *Chunk) WriteRaw(data uint8, line int) {
+	c.code = append(c.code, data)
 	c.lines = append(c.lines, line)
 }
 
-func (c *Chunk) Get(offset int) int {
-	return c.data[offset]
+func (c *Chunk) Get(offset int) OpCode {
+	return OpCode(c.GetRaw(offset))
 }
 
-func (c *Chunk) GetConstant(offset int) val.Value {
+func (c *Chunk) GetRaw(offset int) uint8 {
+	return c.code[offset]
+}
+
+func (c *Chunk) GetConstant(offset uint8) val.Value {
 	return c.constants.GetValue(offset)
 }
 
@@ -47,5 +51,5 @@ func (c *Chunk) GetLine(offset int) int {
 }
 
 func (c *Chunk) Len() int {
-	return len(c.data)
+	return len(c.code)
 }
