@@ -14,6 +14,7 @@ const (
 const (
 	classNone classType = iota
 	classClass
+	classSubclass
 )
 
 type Resolver struct {
@@ -65,7 +66,17 @@ func (r *Resolver) VisitClassStmnt(stmnt ClassStmnt) error {
 			return NewParserError(stmnt.superclass.name, "A class cannot inherit from itself.")
 		}
 
-		r.resolveExpr(stmnt.superclass)
+		r.currentClass = classSubclass
+
+		err := r.resolveExpr(stmnt.superclass)
+		if err != nil {
+			return err
+		}
+	}
+
+	if stmnt.superclass != nil {
+		r.beginScope()
+		r.scope()["super"] = true
 	}
 
 	r.beginScope()
@@ -93,6 +104,10 @@ func (r *Resolver) VisitClassStmnt(stmnt ClassStmnt) error {
 	}
 
 	r.endScope()
+
+	if stmnt.superclass != nil {
+		r.endScope()
+	}
 
 	r.currentClass = enclosingClass
 
@@ -271,6 +286,18 @@ func (r *Resolver) VisitSetExpr(expr SetExpr) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	return nil, nil
+}
+
+func (r *Resolver) VisitSuperExpr(expr SuperExpr) (interface{}, error) {
+	if r.currentClass == classNone {
+		return nil, NewResolverError(expr.keword, "Cannot use 'super' outside of a class.")
+	} else if r.currentClass != classSubclass {
+		return nil, NewResolverError(expr.keword, "Cannot use 'super' in a class with no superclass.")
+	}
+
+	r.resolveLocal(expr, expr.keword)
 
 	return nil, nil
 }

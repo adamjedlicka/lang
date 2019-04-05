@@ -683,7 +683,8 @@ func (p *Parser) finishCall(callee Expr) (Expr, error) {
 // primary → "false" | "true" | "null"
 //         | NUMBER | STRING
 //         | "(" expression ")"
-//         | IDENTIFIER ;
+//         | IDENTIFIER
+//         | "super" "." IDENTIFIER ;
 func (p *Parser) primary() (Expr, error) {
 	if p.match(False) {
 		return MakeLiteralExpr(false), nil
@@ -705,6 +706,19 @@ func (p *Parser) primary() (Expr, error) {
 		}
 
 		return MakeGroupingExpr(expr), nil
+	} else if p.match(Super) {
+		keyword := p.previous()
+		_, err := p.consume(Dot, "Expect '.' after 'super'.")
+		if err != nil {
+			return nil, err
+		}
+
+		method, err := p.consume(Identifier, "Expect superclass method name.")
+		if err != nil {
+			return nil, err
+		}
+
+		return MakeSuperExpr(keyword, method), nil
 	} else if p.match(This) {
 		return MakeThisExpr(p.previous()), nil
 	} else if p.match(Identifier) {

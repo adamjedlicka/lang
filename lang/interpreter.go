@@ -214,6 +214,30 @@ func (i *Interpreter) VisitSetExpr(expr SetExpr) (interface{}, error) {
 	return value, nil
 }
 
+func (i *Interpreter) VisitSuperExpr(expr SuperExpr) (interface{}, error) {
+	distance := i.locals[expr]
+	superclass, err := i.env.GetAt(distance, Token{lexeme: "super"})
+	if err != nil {
+		return nil, err
+	}
+
+	instance, err := i.env.GetAt(distance-1, Token{lexeme: "this"})
+	if err != nil {
+		return nil, err
+	}
+
+	method, err := (superclass.(*BluClass)).findMethod(expr.method)
+	if err != nil {
+		return nil, err
+	}
+
+	if method == nil {
+		return nil, NewRuntimeError(expr.method.line, "Undefined property '"+expr.method.lexeme+"'.")
+	}
+
+	return (method.(Function)).bind(instance.(*BluInstance)), nil
+}
+
 func (i *Interpreter) VisitThisExpr(expr ThisExpr) (interface{}, error) {
 	return i.lookUpVariable(expr.keword, expr)
 }
@@ -288,6 +312,19 @@ func (i *Interpreter) VisitClassStmnt(stmnt ClassStmnt) error {
 		}
 	}
 
+	err := i.env.Define(stmnt.name, nil)
+	if err != nil {
+		return err
+	}
+
+	if stmnt.superclass != nil {
+		i.env = MakeEnv(i.env)
+		err := i.env.Define(Token{lexeme: "super"}, superclass)
+		if err != nil {
+			return err
+		}
+	}
+
 	methods := make(map[string]Function)
 	declarations := make(map[string]Expr)
 
@@ -299,7 +336,13 @@ func (i *Interpreter) VisitClassStmnt(stmnt ClassStmnt) error {
 		methods[method.name.lexeme] = MakeFunction(method, i.env, method.name.lexeme == "init")
 	}
 
-	return i.env.Define(stmnt.name, MakeBluClass(stmnt.name.lexeme, superclass, declarations, methods))
+	class := MakeBluClass(stmnt.name.lexeme, superclass, declarations, methods)
+
+	if superclass != nil {
+		i.env = i.env.enclosing
+	}
+
+	return i.env.Assign(stmnt.name, class)
 }
 
 func (i *Interpreter) VisitExpressionStmnt(stmnt ExpressionStmnt) error {

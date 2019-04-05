@@ -14,6 +14,7 @@ type ExprVisitor interface {
 	VisitLiteralExpr(LiteralExpr) (interface{}, error)
 	VisitLogicalExpr(LogicalExpr) (interface{}, error)
 	VisitSetExpr(SetExpr) (interface{}, error)
+	VisitSuperExpr(SuperExpr) (interface{}, error)
 	VisitThisExpr(ThisExpr) (interface{}, error)
 	VisitUnaryExpr(UnaryExpr) (interface{}, error)
 	VisitVariableExpr(VariableExpr) (interface{}, error)
@@ -165,6 +166,22 @@ func MakeSetExpr(object Expr, name Token, value Expr) SetExpr {
 
 func (e SetExpr) Accept(visitor ExprVisitor) (interface{}, error) {
 	return visitor.VisitSetExpr(e)
+}
+
+type SuperExpr struct {
+	keword Token
+	method Token
+}
+
+func MakeSuperExpr(keyword, method Token) SuperExpr {
+	return SuperExpr{
+		keword: keyword,
+		method: method,
+	}
+}
+
+func (e SuperExpr) Accept(visitor ExprVisitor) (interface{}, error) {
+	return visitor.VisitSuperExpr(e)
 }
 
 type ThisExpr struct {

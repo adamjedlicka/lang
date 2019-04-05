@@ -1,14 +1,20 @@
 class A {
     fn a() {
-        return "a";
+        print "Aa";
     }
 }
 
 class B < A {
+    fn a() {
+        print "Ba";
+        super.a();
+    }
+
     fn b() {
-        return "b";
+        print "Bb";
     }
 }
 
 var b = B();
-print b.c();
+b.a();
+b.b();
