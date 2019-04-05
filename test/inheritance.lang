@@ -1,20 +1,26 @@
 class A {
+    fn init() {
+        print "init A";
+    }
+
     fn a() {
         print "Aa";
     }
 }
 
 class B < A {
+    fn init() {
+    }
+
     fn a() {
         print "Ba";
         super.a();
     }
 
     fn b() {
-        print "Bb";
+        this.a();
     }
 }
 
 var b = B();
-b.a();
 b.b();

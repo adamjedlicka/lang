@@ -24,6 +24,13 @@ func (c *BluClass) Call(interpreter *Interpreter, arguments []interface{}) (inte
 		return nil, err
 	}
 
+	if init, ok := c.methods["init"]; ok {
+		_, err := init.bind(instance).Call(interpreter, arguments)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return instance, nil
 }
 
@@ -59,13 +66,6 @@ func (c *BluClass) init(instance *BluInstance, interpreter *Interpreter, argumen
 		}
 
 		instance.fields[key] = value
-	}
-
-	if init, ok := c.methods["init"]; ok {
-		_, err := init.bind(instance).Call(interpreter, arguments)
-		if err != nil {
-			return err
-		}
 	}
 
 	return nil

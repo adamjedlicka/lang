@@ -24,6 +24,26 @@ func (f Function) Call(i *Interpreter, arguments []interface{}) (interface{}, er
 		}
 	}
 
+	// Automatic calls of super initializers. Not good code, dunno if I should leave it here...
+	// if f.isInit {
+	// 	super, err := env.Get(Token{lexeme: "super"})
+	// 	if err == nil {
+	// 		if init, ok := (super.(*BluClass)).methods["init"]; ok {
+	// 			if init.Arity() == 0 {
+	// 				this, err := env.Get(Token{lexeme: "this"})
+	// 				if err != nil {
+	// 					return nil, err
+	// 				}
+
+	// 				_, err = init.bind(this.(*BluInstance)).Call(i, []interface{}{})
+	// 				if err != nil {
+	// 					return nil, err
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }
+
 	err := i.executeBlock(f.declaration.body, env)
 	if returner, ok := err.(Returner); ok {
 		if f.isInit {
