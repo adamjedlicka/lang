@@ -1,0 +1,115 @@
+class Node {
+
+    var value = null;
+    var next = null;
+    var prev = null;
+
+    fn init(value) {
+        this.value = value;
+    }
+}
+
+class LinkedList {
+
+    var len = 0;
+    var head = null;
+    var tail = null;
+
+    fn pushFront(value) {
+        var node = Node(value);
+        node.next = this.head;
+
+        if this.head == null {
+            this.head = node;
+            this.tail = node;
+        } else {
+            this.head.prev = node;
+            this.head = node;
+        }
+
+        this.len = this.len + 1;
+    }
+
+    fn pushBack(value) {
+        var node = Node(value);
+        node.prev = this.tail;
+
+        if this.head == null {
+            this.head = node;
+            this.tail = node;
+        } else {
+            this.tail.next = node;
+            this.tail = node;
+        }
+
+        this.len = this.len + 1;
+    }
+
+    fn popFront() {
+        var node = this.head;
+
+        this.head = node.next;
+        this.head.prev = null;
+        this.len = this.len - 1;
+
+        return node.value;
+    }
+
+    fn popBack() {
+        var node = this.tail;
+
+        this.tail = node.prev;
+        this.tail.next = null;
+        this.len = this.len - 1;
+
+        return node.value;
+    }
+
+    fn get(at) {
+        var node = this.head;
+
+        for var i = 1; i <= at; i = i + 1 {
+            node = node.next;
+        }
+
+        return node.value;
+    }
+
+    fn set(at, value) {
+        var node = this.head;
+
+        for var i = 1; i <= at; i = i + 1 {
+            node = node.next;
+        }
+
+        node.value = value;
+    }
+
+    fn toString() {
+        var str = "[";
+
+        var node = this.head;
+        for var i = 0; i < this.len; i = i + 1 {
+            str = str + node.value;
+
+            if i < this.len - 1 {
+                str = str + ", ";
+            }
+
+            node = node.next;
+        }
+
+        return str + "]";
+    }
+}
+
+var ll = LinkedList();
+ll.pushBack(3);
+ll.pushBack(5);
+ll.pushFront(2);
+ll.pushBack(8);
+ll.pushFront(1);
+
+ll.set(3, "four");
+
+print ll.toString();
