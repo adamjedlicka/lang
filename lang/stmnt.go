@@ -32,13 +32,15 @@ func (s BlockStmnt) Accept(visitor StmntVisitor) error {
 
 type ClassStmnt struct {
 	name         Token
+	superclass   *VariableExpr
 	declarations []VarStmnt
 	methods      []FnStmnt
 }
 
-func MakeClassStmnt(name Token, declarations []VarStmnt, methods []FnStmnt) ClassStmnt {
+func MakeClassStmnt(name Token, superclass *VariableExpr, declarations []VarStmnt, methods []FnStmnt) ClassStmnt {
 	return ClassStmnt{
 		name:         name,
+		superclass:   superclass,
 		declarations: declarations,
 		methods:      methods,
 	}

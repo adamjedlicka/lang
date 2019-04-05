@@ -47,11 +47,23 @@ func (p *Parser) declaration() (Stmnt, error) {
 	// TODO : Synchronization
 }
 
-// classDeclaration → "class" IDENTIFIER "{" ( "fn" function )* "}" ;
+// classDeclaration → "class" IDENTIFIER ( "<" IDENTIFIER )? "{" ( "fn" function )* "}" ;
 func (p *Parser) classDeclaration() (Stmnt, error) {
 	name, err := p.consume(Identifier, "Expect class name.")
 	if err != nil {
 		return nil, err
+	}
+
+	var superclass *VariableExpr
+	if p.match(Less) {
+		token, err := p.consume(Identifier, "Expect superclass name.")
+		if err != nil {
+			return nil, err
+		}
+
+		// TODO : WHAT WHAT
+		_superclass := MakeVariableExpr(token)
+		superclass = &_superclass
 	}
 
 	_, err = p.consume(LeftBrace, "Expect '{' before class body.")
@@ -97,7 +109,7 @@ func (p *Parser) classDeclaration() (Stmnt, error) {
 		return nil, err
 	}
 
-	return MakeClassStmnt(name, declarations, methods), nil
+	return MakeClassStmnt(name, superclass, declarations, methods), nil
 }
 
 // function → IDENTIFIER "(" parameters? ")" block ;

@@ -1,0 +1,14 @@
+class A {
+    fn a() {
+        return "a";
+    }
+}
+
+class B < A {
+    fn b() {
+        return "b";
+    }
+}
+
+var b = B();
+print b.c();

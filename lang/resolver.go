@@ -60,6 +60,14 @@ func (r *Resolver) VisitClassStmnt(stmnt ClassStmnt) error {
 
 	r.define(stmnt.name)
 
+	if stmnt.superclass != nil {
+		if stmnt.superclass.name.lexeme == stmnt.name.lexeme {
+			return NewParserError(stmnt.superclass.name, "A class cannot inherit from itself.")
+		}
+
+		r.resolveExpr(stmnt.superclass)
+	}
+
 	r.beginScope()
 
 	r.scope()["this"] = true

@@ -273,6 +273,21 @@ func (i *Interpreter) VisitBlockStmnt(stmnt BlockStmnt) error {
 }
 
 func (i *Interpreter) VisitClassStmnt(stmnt ClassStmnt) error {
+	var superclass *BluClass
+
+	if stmnt.superclass != nil {
+		super, err := i.evaluate(stmnt.superclass)
+		if err != nil {
+			return err
+		}
+
+		if super, ok := super.(*BluClass); ok {
+			superclass = super
+		} else {
+			return NewRuntimeError(stmnt.superclass.name.line, "Superclass must be a class")
+		}
+	}
+
 	methods := make(map[string]Function)
 	declarations := make(map[string]Expr)
 
@@ -284,7 +299,7 @@ func (i *Interpreter) VisitClassStmnt(stmnt ClassStmnt) error {
 		methods[method.name.lexeme] = MakeFunction(method, i.env, method.name.lexeme == "init")
 	}
 
-	return i.env.Define(stmnt.name, MakeBluClass(stmnt.name.lexeme, declarations, methods))
+	return i.env.Define(stmnt.name, MakeBluClass(stmnt.name.lexeme, superclass, declarations, methods))
 }
 
 func (i *Interpreter) VisitExpressionStmnt(stmnt ExpressionStmnt) error {

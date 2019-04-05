@@ -17,11 +17,12 @@ func (i *BluInstance) get(name Token) (interface{}, error) {
 		return value, nil
 	}
 
-	if method, ok := i.class.methods[name.lexeme]; ok {
-		return method.bind(i), nil
+	method, err := i.class.findMethod(name)
+	if err != nil {
+		return nil, err
 	}
 
-	return nil, NewRuntimeError(name.line, "Undefined property '"+name.lexeme+"'.")
+	return (method.(Function)).bind(i), nil
 }
 
 func (i *BluInstance) set(name Token, value interface{}) {
