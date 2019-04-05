@@ -25,6 +25,8 @@ func (f Lambda) Call(i *Interpreter, arguments []interface{}) (interface{}, erro
 	err := i.executeBlock(f.declaration.body, env)
 	if returner, ok := err.(Returner); ok {
 		return returner.value, nil
+	} else if err != nil {
+		return nil, err
 	}
 
 	return nil, err

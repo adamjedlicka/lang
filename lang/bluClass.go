@@ -19,25 +19,9 @@ func MakeBluClass(name string, superclass *BluClass, declarations map[string]Exp
 func (c *BluClass) Call(interpreter *Interpreter, arguments []interface{}) (interface{}, error) {
 	instance := MakeBluInstance(c)
 
-	for key, declaration := range c.declarations {
-		if declaration == nil {
-			instance.fields[key] = nil
-			continue
-		}
-
-		value, err := interpreter.evaluate(declaration)
-		if err != nil {
-			return nil, err
-		}
-
-		instance.fields[key] = value
-	}
-
-	if init, ok := c.methods["init"]; ok {
-		_, err := init.bind(instance).Call(interpreter, arguments)
-		if err != nil {
-			return nil, err
-		}
+	err := c.init(instance, interpreter, arguments)
+	if err != nil {
+		return nil, err
 	}
 
 	return instance, nil
@@ -53,6 +37,38 @@ func (c *BluClass) findMethod(name Token) (interface{}, error) {
 	}
 
 	return nil, NewRuntimeError(name.line, "Undefined property '"+name.lexeme+"'.")
+}
+
+func (c *BluClass) init(instance *BluInstance, interpreter *Interpreter, arguments []interface{}) error {
+	if c.superclass != nil {
+		err := c.superclass.init(instance, interpreter, arguments)
+		if err != nil {
+			return err
+		}
+	}
+
+	for key, declaration := range c.declarations {
+		if declaration == nil {
+			instance.fields[key] = nil
+			continue
+		}
+
+		value, err := interpreter.evaluate(declaration)
+		if err != nil {
+			return err
+		}
+
+		instance.fields[key] = value
+	}
+
+	if init, ok := c.methods["init"]; ok {
+		_, err := init.bind(instance).Call(interpreter, arguments)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (c *BluClass) Arity() int {

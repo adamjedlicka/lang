@@ -31,6 +31,8 @@ func (f Function) Call(i *Interpreter, arguments []interface{}) (interface{}, er
 		}
 
 		return returner.value, nil
+	} else if err != nil {
+		return nil, err
 	}
 
 	if f.isInit {
