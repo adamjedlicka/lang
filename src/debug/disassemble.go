@@ -11,11 +11,11 @@ func DisassembleChunk(chunk *code.Chunk, name string) {
 	fmt.Printf("== %s ==\n", name)
 
 	for offset := 0; offset < chunk.Len(); {
-		offset = disassembleInstruction(chunk, offset)
+		offset = DisassembleInstruction(chunk, offset)
 	}
 }
 
-func disassembleInstruction(chunk *code.Chunk, offset int) int {
+func DisassembleInstruction(chunk *code.Chunk, offset int) int {
 	fmt.Printf("%04d ", offset)
 
 	if offset > 0 && chunk.GetLine(offset) == chunk.GetLine(offset-1) {
@@ -27,9 +27,19 @@ func disassembleInstruction(chunk *code.Chunk, offset int) int {
 	instruction := chunk.Get(offset)
 	switch instruction {
 	case code.OpConstant:
-		return constantInstruction("OP_CONSTANT", chunk, offset)
+		return constantInstruction("OpConstant", chunk, offset)
+	case code.OpAdd:
+		return simpleInstruction("OpAdd", offset)
+	case code.OpSubtract:
+		return simpleInstruction("OpSubtract", offset)
+	case code.OpMultiply:
+		return simpleInstruction("OpMultiply", offset)
+	case code.OpDivide:
+		return simpleInstruction("OpDivide", offset)
+	case code.OpNegate:
+		return simpleInstruction("OpNegate", offset)
 	case code.OpReturn:
-		return simpleInstruction("OP_RETURN", offset)
+		return simpleInstruction("OpReturn", offset)
 	}
 
 	fmt.Printf("Unknown opcode %d\n", instruction)
