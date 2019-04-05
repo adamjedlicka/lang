@@ -1,21 +1,20 @@
 package main
 
 import (
-	"fmt"
-	"os"
-
-	"github.com/adamjedlicka/lang/lang"
+	"github.com/adamjedlicka/lang/src/code"
+	"github.com/adamjedlicka/lang/src/debug"
+	"github.com/adamjedlicka/lang/src/val"
 )
 
 func main() {
-	if len(os.Args) > 2 {
-		fmt.Println("Usage: lang [script]")
-		os.Exit(64)
-	} else if len(os.Args) == 2 {
-		l := lang.MakeLang()
-		l.RunFile(os.Args[1])
-	} else {
-		l := lang.MakeLang()
-		l.RunPrompt()
-	}
+	chunk := code.NewChunk()
+
+	constant := chunk.AddConstant(val.NewNumber(1.2))
+
+	chunk.Write(code.OpConstant, 123)
+	chunk.WriteRaw(constant, 123)
+
+	chunk.Write(code.OpReturn, 123)
+
+	debug.DisassembleChunk(chunk, "test chunk")
 }
