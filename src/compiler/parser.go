@@ -3,7 +3,6 @@ package compiler
 import (
 	"fmt"
 	"os"
-	"strconv"
 
 	"github.com/adamjedlicka/lang/src/code"
 	"github.com/adamjedlicka/lang/src/val"
@@ -63,12 +62,7 @@ func (p *Parser) expression() {
 }
 
 func (p *Parser) number() {
-	value, err := strconv.ParseFloat(p.previous.lexeme, 64)
-	if err != nil {
-		panic(err)
-	}
-
-	p.emitConstant(val.NewNumber(value))
+	p.emitConstant(val.NewNumber(p.previous.lexeme))
 }
 
 func (p *Parser) grouping() {

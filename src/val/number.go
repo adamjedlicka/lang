@@ -1,37 +1,40 @@
 package val
 
-import "fmt"
+import (
+	"math/big"
+)
 
-type Number struct {
-	value float64
-}
+type Number big.Float
 
-func NewNumber(value float64) Number {
-	return Number{
-		value: value,
+func NewNumber(lexeme string) *Number {
+	f, _, err := new(big.Float).Parse(lexeme, 10)
+	if err != nil {
+		panic(err)
 	}
+
+	return (*Number)(f)
 }
 
-func (n Number) Add(other Value) Value {
-	return NewNumber(n.value + (other.(Number)).value)
+func (n *Number) Add(other Value) Value {
+	return (*Number)((*big.Float)(n).Add((*big.Float)(n), (*big.Float)(other.(*Number))))
 }
 
-func (n Number) Subtract(other Value) Value {
-	return NewNumber(n.value - (other.(Number)).value)
+func (n *Number) Subtract(other Value) Value {
+	return (*Number)((*big.Float)(n).Sub((*big.Float)(n), (*big.Float)(other.(*Number))))
 }
 
-func (n Number) Multiply(other Value) Value {
-	return NewNumber(n.value * (other.(Number)).value)
+func (n *Number) Multiply(other Value) Value {
+	return (*Number)((*big.Float)(n).Mul((*big.Float)(n), (*big.Float)(other.(*Number))))
 }
 
-func (n Number) Divide(other Value) Value {
-	return NewNumber(n.value / (other.(Number)).value)
+func (n *Number) Divide(other Value) Value {
+	return (*Number)((*big.Float)(n).Quo((*big.Float)(n), (*big.Float)(other.(*Number))))
 }
 
-func (n Number) Negate() Value {
-	return NewNumber(-n.value)
+func (n *Number) Negate() Value {
+	return (*Number)((*big.Float)(n).Neg((*big.Float)(n)))
 }
 
-func (n Number) String() string {
-	return fmt.Sprintf("%v", n.value)
+func (n *Number) String() string {
+	return (*big.Float)(n).String()
 }
