@@ -36,5 +36,5 @@ func (n *Number) Negate() Value {
 }
 
 func (n *Number) String() string {
-	return (*big.Float)(n).String()
+	return (*big.Float)(n).Text('f', -1)
 }
