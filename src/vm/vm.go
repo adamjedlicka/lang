@@ -2,59 +2,51 @@ package vm
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/adamjedlicka/lang/src/code"
+	"github.com/adamjedlicka/lang/src/compiler"
+	"github.com/adamjedlicka/lang/src/config"
 	"github.com/adamjedlicka/lang/src/debug"
 	"github.com/adamjedlicka/lang/src/val"
 )
 
 type VM struct {
-	chunk    *code.Chunk
-	ip       int
-	stack    []val.Value
-	stackLen int
+	chunk *code.Chunk
+	ip    int
+	stack []val.Value
 }
-
-type InterpretResult uint8
-
-const (
-	InterpretOK InterpretResult = iota
-	InterpretCompileError
-	InterpretRuntimeError
-)
 
 func NewVM() *VM {
 	vm := new(VM)
 	vm.ip = 0
 	vm.stack = make([]val.Value, 0)
-	vm.stackLen = 0
 
 	return vm
 }
 
-func (vm *VM) Interpret(chunk *code.Chunk) InterpretResult {
-	vm.chunk = chunk
+func (vm *VM) Interpret(source []rune) {
+	vm.chunk = compiler.NewCompiler(source).Compile()
 	vm.ip = 0
 
-	start := time.Now().UnixNano()
-
-	ret := vm.run()
-
-	end := time.Now().UnixNano()
-	fmt.Printf("runtime: %dus\n", (end-start)/1000)
-
-	return ret
+	// vm.run()
 }
 
-func (vm *VM) run() InterpretResult {
+func (vm *VM) run() {
 	for {
-		fmt.Print("          ")
-		for _, value := range vm.stack {
-			fmt.Printf("[%s]", value.String())
+		if config.FlagDebug {
+			if config.FlagStack {
+				fmt.Print("STACK :: [")
+				for i, value := range vm.stack {
+					if i > 0 {
+						fmt.Print(", ")
+					}
+
+					fmt.Printf("%s", value)
+				}
+				fmt.Println("]")
+			}
+			debug.DisassembleInstruction(vm.chunk, vm.ip)
 		}
-		fmt.Println()
-		debug.DisassembleInstruction(vm.chunk, vm.ip)
 
 		instruction := vm.readInstruction()
 
@@ -73,26 +65,21 @@ func (vm *VM) run() InterpretResult {
 		case code.OpNegate:
 			vm.push(vm.pop().Negate())
 		case code.OpReturn:
-			fmt.Println(vm.pop())
-			return InterpretOK
+			return
 		}
 	}
 }
 
 func (vm *VM) push(value val.Value) {
-	if vm.stackLen == len(vm.stack) {
-		vm.stack = append(vm.stack, value)
-	} else {
-		vm.stack[vm.stackLen] = value
-	}
-
-	vm.stackLen++
+	vm.stack = append(vm.stack, value)
 }
 
 func (vm *VM) pop() val.Value {
-	vm.stackLen--
+	value := vm.stack[len(vm.stack)-1]
 
-	return vm.stack[vm.stackLen]
+	vm.stack = vm.stack[:len(vm.stack)-1]
+
+	return value
 }
 
 func (vm *VM) readInstruction() code.OpCode {
