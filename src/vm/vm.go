@@ -2,9 +2,9 @@ package vm
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/adamjedlicka/lang/src/code"
-	"github.com/adamjedlicka/lang/src/compiler"
 	"github.com/adamjedlicka/lang/src/config"
 	"github.com/adamjedlicka/lang/src/debug"
 	"github.com/adamjedlicka/lang/src/val"
@@ -24,14 +24,18 @@ func NewVM() *VM {
 	return vm
 }
 
-func (vm *VM) Interpret(source []rune) {
-	vm.chunk = compiler.NewCompiler(source).Compile()
-	vm.ip = 0
+func (vm *VM) Interpret(chunk *code.Chunk) {
+	vm.chunk = chunk
 
-	// vm.run()
+	start := time.Now().UnixNano()
+	out := vm.run()
+	end := time.Now().UnixNano()
+
+	fmt.Println(out.String())
+	fmt.Printf("time: %dns\n", end-start)
 }
 
-func (vm *VM) run() {
+func (vm *VM) run() val.Value {
 	for {
 		if config.FlagDebug {
 			if config.FlagStack {
@@ -55,17 +59,25 @@ func (vm *VM) run() {
 			constant := vm.readConstant()
 			vm.push(constant)
 		case code.OpAdd:
-			vm.push(vm.pop().Add(vm.pop()))
+			right := vm.pop()
+			left := vm.pop()
+			vm.push(left.Add(right))
 		case code.OpSubtract:
-			vm.push(vm.pop().Subtract(vm.pop()))
+			right := vm.pop()
+			left := vm.pop()
+			vm.push(left.Subtract(right))
 		case code.OpMultiply:
-			vm.push(vm.pop().Multiply(vm.pop()))
+			right := vm.pop()
+			left := vm.pop()
+			vm.push(left.Multiply(right))
 		case code.OpDivide:
-			vm.push(vm.pop().Divide(vm.pop()))
+			right := vm.pop()
+			left := vm.pop()
+			vm.push(left.Divide(right))
 		case code.OpNegate:
 			vm.push(vm.pop().Negate())
 		case code.OpReturn:
-			return
+			return vm.pop()
 		}
 	}
 }

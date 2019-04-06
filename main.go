@@ -5,6 +5,7 @@ import (
 	"flag"
 	"io/ioutil"
 
+	"github.com/adamjedlicka/lang/src/compiler"
 	"github.com/adamjedlicka/lang/src/config"
 	"github.com/adamjedlicka/lang/src/vm"
 )
@@ -17,8 +18,16 @@ func main() {
 	if config.FlagScript != "" {
 		source := loadFile(config.FlagScript)
 
+		scanner := compiler.NewScanner(source)
+
+		parser := compiler.NewParser(scanner)
+		chunk := parser.Parse()
+		if chunk == nil {
+			return
+		}
+
 		vm := vm.NewVM()
-		vm.Interpret(source)
+		vm.Interpret(chunk)
 	} else {
 		flag.Usage()
 	}

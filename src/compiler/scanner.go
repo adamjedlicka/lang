@@ -1,6 +1,8 @@
 package compiler
 
-import "unicode"
+import (
+	"unicode"
+)
 
 type Scanner struct {
 	source  []rune
@@ -142,7 +144,7 @@ func (s *Scanner) makeToken(tokenType TokenType) Token {
 		tokenType: tokenType,
 		lexeme:    string(s.source[s.start:s.current]),
 		line:      s.line,
-		column:    s.start - rowStart,
+		column:    (s.start - rowStart) + 1,
 	}
 }
 
@@ -159,7 +161,7 @@ func (s *Scanner) errorToken(message string) Token {
 		tokenType: TokenError,
 		lexeme:    message,
 		line:      s.line,
-		column:    s.start - rowStart,
+		column:    (s.start - rowStart) + 1,
 	}
 }
 
